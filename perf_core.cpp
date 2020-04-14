@@ -31,7 +31,9 @@ int main() {
 		printf("can not open perf by syscall");
 		exit(0);
 	}
-	void *addr = mmap(NULL, 0x3000 , PROT_READ,
+	int PageSize = 0x1000;
+	int DataSize = PageSize * 2;
+	void *addr = mmap(NULL, PageSize * 3 , PROT_READ,
                        MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED) {
 		printf("can not map by mmap");
@@ -39,9 +41,14 @@ int main() {
 	}
 	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
         ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-	for(int i=1;i<10;i++) {
+	sleep(1);
+        ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+	perf_event_mmap_page *mmap = reinterpret_cast<struct perf_event_mmap_page*>(addr);
+	unsigned long long *base = reinterpret_cast<unsigned long long *>(addr + PageSize);
+	printf("%llx %llx\n",addr, base);
+
+	for(int i=0;i<10;i++) {
 		
-		sleep(1);
 		struct packet{
 			long long value;
 			long long time;
@@ -49,12 +56,12 @@ int main() {
 		data.time = 0;
 		data.value = 0;
 		struct perf_event_mmap_page a;
-        	int re = read(fd, &data, sizeof(struct packet));
-		//int re = 0;
-		//data.time = *(volatile long long *) addr;
+        	//int re = read(fd, &data, sizeof(struct packet));
+		int re = 0;
+		data.value = base[2*i];
+		data.time = base[2*i+1];
 		printf("re %d time %lld value %lld\n",
 			re, data.time, data.value);
 	}
-        ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 	return 0;
 }
