@@ -8,7 +8,7 @@
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
 #include<linux/hw_breakpoint.h>
-void main() {
+int main() {
 	struct perf_event_attr pe;
 	memset(&pe, 0, sizeof(struct perf_event_attr));
 	pe.type = PERF_TYPE_HARDWARE;
@@ -31,7 +31,7 @@ void main() {
 		printf("can not open perf by syscall");
 		exit(0);
 	}
-	char *addr = mmap(NULL, 0x3000 , PROT_READ,
+	void *addr = mmap(NULL, 0x3000 , PROT_READ,
                        MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED) {
 		printf("can not map by mmap");
@@ -56,4 +56,5 @@ void main() {
 			re, data.time, data.value);
 	}
         ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+	return 0;
 }

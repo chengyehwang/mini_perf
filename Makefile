@@ -1,3 +1,3 @@
 all:
-	gcc perf_core.cpp
+	g++ perf_core.cpp
 	sudo ./a.out
