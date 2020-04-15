@@ -14,4 +14,6 @@ python $env:P_PATH\systrace.py --time=10 -o $env:PWD\new_trace.html
 
 adb shell "su -c 'killall mini_perf.exe'"
 adb pull /data/local/tmp/mini_perf.data mini_perf.data
+adb pull /data/local/tmp/mini_perf.out mini_perf.out
+adb pull /data/local/tmp/mini_perf.err mini_perf.err
 
