@@ -5,6 +5,12 @@
 #include<string.h>
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
+
+#ifndef HOST
+#include <android/trace.h>
+#endif
+
+using namespace std;
 int main() {
     int cpu = 6;
     int counter = 5;
@@ -45,6 +51,7 @@ int main() {
     for (int k=0 ; k<sample ; k++)
     {
         usleep(1000);
+        ATrace_setCounter("mini_perf", k);
         for (int i=0 ; i<cpu ; i++)
             for (int j=0 ; j<counter ; j++)
             {

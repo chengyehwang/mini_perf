@@ -1,5 +1,5 @@
-mini_perf:
-	g++ perf_core.cpp -o mini_perf
+host:
+	g++ -DHOST=1 mini_perf.cpp -o mini_perf
 	sudo ./mini_perf
 export NDK_PROJECT_PATH := $(PWD)
 build:

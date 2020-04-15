@@ -7,6 +7,7 @@ test_name = $(test_case)
 include $(CLEAR_VARS)
 LOCAL_MODULE := $(test_case).out
 LOCAL_SRC_FILES := $(test_case).cpp
+LOCAL_LDLIBS = -landroid
 include $(BUILD_EXECUTABLE)
 endef
 
