@@ -1,17 +1,31 @@
 #include<sys/types.h>
 #include<sys/ioctl.h>
+#include<fcntl.h>
 #include<unistd.h>
 #include<stdio.h>
 #include<string.h>
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
 
-#ifndef HOST
-#include <android/trace.h>
-#endif
-
 using namespace std;
+
+#define ATRACE_MESSAGE_LEN 256
+int     atrace_marker_fd = -1;
+
+void trace_init()
+{
+  atrace_marker_fd = open("/sys/kernel/debug/tracing/trace_marker", O_WRONLY);
+  if (atrace_marker_fd == -1)   { /* do error handling */ }
+}
+
+inline void trace_counter(const char *name, const int value)
+{
+    char buf[ATRACE_MESSAGE_LEN];
+    int len = snprintf(buf, ATRACE_MESSAGE_LEN, "C|%d|%s|%i", getpid(), name, value);
+    write(atrace_marker_fd, buf, len);
+}
 int main() {
+    trace_init();
     int cpu = 6;
     int counter = 5;
     int sample = 0x1000;
@@ -51,7 +65,7 @@ int main() {
     for (int k=0 ; k<sample ; k++)
     {
         usleep(1000);
-        ATrace_setCounter("mini_perf", k);
+        trace_counter("pmu_index", k);
         for (int i=0 ; i<cpu ; i++)
             for (int j=0 ; j<counter ; j++)
             {
