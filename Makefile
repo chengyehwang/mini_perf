@@ -4,8 +4,7 @@ mini_perf:
 export NDK_PROJECT_PATH := $(PWD)
 build:
 	./android-ndk-r20b/ndk-build NDK_APPLICATION_MK=./Application.mk
-	cp obj/local/arm64-v8a/test_mutex.out ./test.exe
-	./android-ndk-r20b/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-objdump -D test.exe > test.dasm
+	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 run:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
 ndk:
