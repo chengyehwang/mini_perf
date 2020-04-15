@@ -1,13 +1,10 @@
 #include<sys/types.h>
 #include<sys/ioctl.h>
-#include<sys/mman.h>
 #include<unistd.h>
 #include<stdio.h>
-#include<stdlib.h>
 #include<string.h>
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
-#include<linux/hw_breakpoint.h>
 int main() {
     int cpu = 6;
     int counter = 5;
@@ -41,7 +38,7 @@ int main() {
             fd[i][j] = syscall(__NR_perf_event_open, &ref, 0, i, -1, 0);
             if (fd[i][j] == -1) {
                 printf("can not open perf %d %d by syscall",i,j);
-                exit(0);
+                return -1;
             }
         }
     unsigned long long data[sample][cpu][counter];
@@ -54,7 +51,7 @@ int main() {
                 int re = read(fd[i][j], &(data[k][i][j]), sizeof(unsigned long long));
             }
     }
-    FILE *writer = fopen("mini_perf.bin", "wb");
+    FILE *writer = fopen("mini_perf.data", "wb");
     fwrite(data, sizeof(unsigned long long),sample * cpu * counter, writer);
     fclose(writer);
     return 0;

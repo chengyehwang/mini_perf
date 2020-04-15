@@ -1,3 +1,3 @@
 all:
-	g++ perf_core.cpp
-	sudo ./a.out
+	g++ perf_core.cpp -o mini_perf
+	sudo ./mini_perf
