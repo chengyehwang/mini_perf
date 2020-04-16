@@ -39,6 +39,7 @@ int main() {
             perf_event_attr& ref = pe[i][j];
             memset(& ref, 0, sizeof(struct perf_event_attr));
             ref.type = PERF_TYPE_HARDWARE;
+            ref.read_format = PERF_FORMAT_GROUP;
             switch(j)
             {
                 case 0:
