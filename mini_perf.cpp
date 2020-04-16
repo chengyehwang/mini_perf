@@ -79,7 +79,7 @@ int main() {
             }
     }
     FILE *writer = fopen("mini_perf.data", "wb");
-    fwrite(data, sizeof(unsigned long long),sample * cpu * counter, writer);
+    fwrite(data, sizeof(unsigned long long),sample * cpu * (counter+1), writer);
     fclose(writer);
     return 0;
 }
