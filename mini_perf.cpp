@@ -32,6 +32,8 @@ int main() {
     struct perf_event_attr pe[cpu][counter];
     int fd[cpu][counter];
     for (int i=0 ; i<cpu ; i++)
+    {
+        int fd_prev = -1;
         for (int j=0 ; j<counter ; j++)
         {
             perf_event_attr& ref = pe[i][j];
@@ -55,21 +57,24 @@ int main() {
                     ref.config = PERF_COUNT_HW_BUS_CYCLES;
                     break;
             }
-            fd[i][j] = syscall(__NR_perf_event_open, &ref, 0, i, -1, 0);
+            fd[i][j] = syscall(__NR_perf_event_open, &ref, -1, i, fd_prev, 0);
+            fd_prev = fd[i][j];
             if (fd[i][j] == -1) {
                 printf("can not open perf %d %d by syscall",i,j);
                 return -1;
             }
         }
-    unsigned long long data[sample][cpu][counter];
+    }
+    unsigned long long data[sample][cpu][counter+1];
     for (int k=0 ; k<sample ; k++)
     {
         usleep(1000);
         trace_counter("pmu_index", k);
         for (int i=0 ; i<cpu ; i++)
-            for (int j=0 ; j<counter ; j++)
+            //for (int j=0 ; j<counter ; j++)
             {
-                int re = read(fd[i][j], &(data[k][i][j]), sizeof(unsigned long long));
+                int j = 0;
+                int re = read(fd[i][j], &(data[k][i][j]), (counter+1) * sizeof(unsigned long long));
             }
     }
     FILE *writer = fopen("mini_perf.data", "wb");
