@@ -59,7 +59,7 @@ int main() {
                     break;
             }
             fd[i][j] = syscall(__NR_perf_event_open, &ref, -1, i, fd_prev, 0);
-            fd_prev = fd[i][j];
+            fd_prev = fd[i][0];
             if (fd[i][j] == -1) {
                 printf("can not open perf %d %d by syscall",i,j);
                 return -1;
