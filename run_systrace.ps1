@@ -9,8 +9,8 @@ adb shell "su -c 'echo 1 > /d/tracing/events/sched/sched_waking/enable'"
 
 adb push ./mini_perf.exe /data/local/tmp/mini_perf.exe
 adb shell chmod 755 /data/local/tmp/mini_perf.exe
-adb shell "cd /data/local/tmp ; su -c './mini_perf.exe >mini_perf.out 2>mini_perf.err &'"
-python $env:P_PATH\systrace.py --time=10 -o $env:PWD\new_trace.html
+adb shell "cd /data/local/tmp ; su -c 'taskset 0x1 ./mini_perf.exe >mini_perf.out 2>mini_perf.err &'"
+python $env:P_PATH\systrace.py --time=10 --timeout=100 -o $env:PWD\new_trace.html
 
 adb shell "su -c 'killall mini_perf.exe'"
 adb pull /data/local/tmp/mini_perf.data mini_perf.data

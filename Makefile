@@ -13,5 +13,6 @@ ndk:
 clean:
 	-rm -r obj libs test.exe *.out *.err *.dasm *.pb
 
-
-
+perfetto:
+	wget http://get.perfetto.dev/trace_processor
+	chmod 755 trace_processor
