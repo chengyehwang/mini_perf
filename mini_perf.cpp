@@ -18,11 +18,12 @@ void trace_init()
   if (atrace_marker_fd == -1)   { /* do error handling */ }
 }
 
-inline void trace_counter(const char *name, const int value)
+inline int trace_counter(const char *name, const int value)
 {
     char buf[ATRACE_MESSAGE_LEN];
     int len = snprintf(buf, ATRACE_MESSAGE_LEN, "C|%d|%s|%i", getpid(), name, value);
-    write(atrace_marker_fd, buf, len);
+    int ret = write(atrace_marker_fd, buf, len);
+    return ret;
 }
 int main() {
     trace_init();
@@ -70,7 +71,12 @@ int main() {
     for (int k=0 ; k<sample ; k++)
     {
         usleep(1000);
-        trace_counter("pmu_index", k);
+        int ret = trace_counter("pmu_index", k);
+        if (ret <0)
+        {
+            k = -1;
+            continue;
+        }
         for (int i=0 ; i<cpu ; i++)
             //for (int j=0 ; j<counter ; j++)
             {
