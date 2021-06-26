@@ -27,7 +27,7 @@ inline int trace_counter(const char *name, const int value)
 }
 int main() {
     trace_init();
-    int cpu = 6;
+    int cpu = 1;
     int group = 2;
     int counter = 2;
     int sample = 0x1000;
