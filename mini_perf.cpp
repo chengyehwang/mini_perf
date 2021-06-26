@@ -25,22 +25,15 @@ inline int trace_counter(const char *name, const int value)
     return ret;
 }
 int main() {
-    int cpu = 1;
-    int group = 2;
-    int counter = 2;
-    int sample = 0x1000;
+    const int cpu = 1;
+    const int group = 2;
+    const int counter = 5;
+    const int sample = 0x1000;
     struct perf_event_attr pe[cpu][group][counter];
     int fd[cpu][group][counter];
+    int group_num[group] = {0};
     const char *group_name[group][counter] = {
-        {
-            "raw-l1d-cache",
-            "raw-l1i-cache"
-        },
-        {
-            "raw-l2d-cache",
-            "raw-l3d-cache"
-        }
-        /*
+#ifdef HOST
         {
             "instructions",
             "cache_misses"
@@ -48,7 +41,23 @@ int main() {
         {
             "instructions",
             "branch_misses"
-        }*/
+        }
+#else
+        {
+            "raw-inst-retired",
+            "raw-l1i-cache",
+            "raw-l1i-cache-refill",
+            "raw-l1d-cache",
+            "raw-l1d-cache-refill"
+        },
+        {
+            "raw-inst-retired",
+            "raw-l2d-cache",
+            "raw-l2d-cache-refill",
+            "raw-l3d-cache",
+            "raw-l3d-cache-refill"
+        }
+#endif
     };
 
     trace_init();
@@ -69,10 +78,16 @@ int main() {
     {
         for (int count_i = 0 ; count_i < counter ; count_i++)
         {
+            if (group_name[group_i][count_i] == 0)
+            {
+                group_counter[group_i][count_i] = -1;
+                continue;
+            }
+            group_num[group_i] += 1;
             for (int i = 0 ; ;i++)
             {
                 //printf("%s %d\n",event_name[i].name,event_name[i].id);
-                if (event_name[i].id==-1)
+                if (event_name[i].id == -1)
                     break;
                 if (strcmp(group_name[group_i][count_i], event_name[i].name)==0)
                 {
@@ -89,6 +104,7 @@ int main() {
                 printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]);
             }
         }
+        printf("group %d: num=%d\n",group_i, group_num[group_i]);
     }
 
     // register counter
@@ -97,7 +113,7 @@ int main() {
         for (int group_i = 0 ; group_i < group ; group_i++)
         {
             int fd_prev = -1;
-            for (int count_i=0 ; count_i<counter ; count_i++)
+            for (int count_i=0 ; count_i < group_num[group_i] ; count_i++)
             {
                 perf_event_attr& ref = pe[cpu_i][group_i][count_i];
                 memset(& ref, 0, sizeof(struct perf_event_attr));
@@ -108,7 +124,7 @@ int main() {
                 fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd[cpu_i][group_i][count_i] == -1) {
-                    printf("can not open perf %d %d by syscall",cpu_i,count_i);
+                    printf("can not open perf cpu %d count %d by syscall",cpu_i,group_counter[0][count_i]);
                     return -1;
                 }
             }
@@ -116,7 +132,12 @@ int main() {
     }
 
     // record counters
-    unsigned long long data[sample][cpu][group][counter+2];
+    int group_index[group+1] = {0};
+    for (int i=0 ; i < group ; i++)
+    {
+        group_index[i+1] = group_index[i] + group_num[i] + 2;
+    }
+    unsigned long long data[sample][cpu][group_index[group]];
     for (int k = 0 ; k < sample ; k++)
     {
         usleep(1000);
@@ -129,13 +150,13 @@ int main() {
         for (int i = 0 ; i < cpu ; i++)
             for (int j = 0 ; j < group ; j++)
             {
-                int re = read(fd[i][j][0], &(data[k][i][j][0]), (counter+2) * sizeof(unsigned long long));
+                int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
             }
     }
 
     // write data to file
     FILE *writer = fopen("mini_perf.data", "wb");
-    fwrite(data, sizeof(unsigned long long),sample * cpu * group * (counter+2), writer);
+    fwrite(data, sizeof(unsigned long long),sample * cpu * group_index[group], writer);
     fclose(writer);
 
     // wirte head to file
@@ -146,7 +167,7 @@ int main() {
         {
             fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_i);
             fprintf(writer, "count: time_cpu%d\n",cpu_i);
-            for(int count_i=0 ; count_i<counter ; count_i++)
+            for(int count_i=0 ; count_i < group_num[group_i] ; count_i++)
             {
                 fprintf(writer, "count: %s_cpu%d\n",group_name[group_i][count_i],cpu_i);
             }
