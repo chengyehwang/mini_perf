@@ -28,17 +28,30 @@ inline int trace_counter(const char *name, const int value)
 int main() {
     trace_init();
     int cpu = 6;
-    int group = 1;
-    int counter = 5;
+    int group = 2;
+    int counter = 2;
     int sample = 0x1000;
     struct perf_event_attr pe[cpu][group][counter];
     int fd[cpu][group][counter];
     int group_counter[group][counter] = {
-        {   PERF_COUNT_HW_CPU_CYCLES,
-            PERF_COUNT_HW_INSTRUCTIONS,
+        {
+            PERF_COUNT_HW_CPU_CYCLES,
+            PERF_COUNT_HW_INSTRUCTIONS
+        },
+        {
             PERF_COUNT_HW_CACHE_MISSES,
-            PERF_COUNT_HW_BRANCH_MISSES,
-            PERF_COUNT_HW_BUS_CYCLES
+            PERF_COUNT_HW_BRANCH_MISSES
+        }
+            //PERF_COUNT_HW_BUS_CYCLES
+    };
+    char group_name[group][counter][20] = {
+        {
+            "cpu_cycles",
+            "instructions"
+        },
+        {
+            "cache_misses",
+            "branch_misses"
         }
     };
     for (int cpu_i=0 ; cpu_i<cpu ; cpu_i++)
@@ -81,6 +94,13 @@ int main() {
     FILE *writer = fopen("mini_perf.data", "wb");
     fwrite(data, sizeof(unsigned long long),sample * cpu * (counter+1), writer);
     fclose(writer);
+    for (int group_i=0 ; group_i<group ; group_i++)
+    {
+        for(int count_i=0 ; count_i<counter ; count_i++)
+        {
+            printf("count: %s\n",group_name[group_i][count_i]);
+        }
+    }
     return 0;
 }
 
