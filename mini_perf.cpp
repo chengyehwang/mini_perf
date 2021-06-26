@@ -25,27 +25,13 @@ inline int trace_counter(const char *name, const int value)
     return ret;
 }
 int main() {
-    trace_init();
-    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .name = NAME, .com = COM},
-    struct event_t {
-        int id;
-        const char *name;
-        const char *com;
-    };
-    event_t event_name[] = {
-        #include "event_type_table.h"
-        {.id = 0, .name = "", .com = ""}
-    };
-    //for(int i=0;i<256;i++)
-    //    printf("%x ",(unsigned long long) (event_name[i]));
-
     int cpu = 1;
     int group = 2;
     int counter = 2;
     int sample = 0x1000;
     struct perf_event_attr pe[cpu][group][counter];
     int fd[cpu][group][counter];
-    char group_name[group][counter][20] = {
+    const char *group_name[group][counter] = {
         {
             "instructions",
             "cache_misses"
@@ -55,12 +41,26 @@ int main() {
             "branch_misses"
         }
     };
+
+    trace_init();
+    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .name = NAME, .comm = COM},
+    struct event_t {
+        int id;
+        const char *name;
+        const char *comm;
+    };
+    event_t event_name[] = {
+        #include "event_type_table.h"
+        {.id = 0, .name = "", .comm = ""}
+    };
+
+    // search counter id from counter name
     int group_counter[group][counter]={0};
-    for (int group_i=0;group_i<group;group_i++)
+    for (int group_i = 0 ; group_i < group; group_i++)
     {
-        for (int count_i=0;count_i<counter;count_i++)
+        for (int count_i = 0 ; count_i < counter ; count_i++)
         {
-            for (int i=0;;i++)
+            for (int i = 0 ; ;i++)
             {
                 if (event_name[i].id==0)
                     break;
@@ -76,9 +76,11 @@ int main() {
             }
         }
     }
-    for (int cpu_i=0 ; cpu_i<cpu ; cpu_i++)
+
+    // register counter
+    for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
-        for (int group_i=0 ; group_i < group ; group_i++)
+        for (int group_i = 0 ; group_i < group ; group_i++)
         {
             int fd_prev = -1;
             for (int count_i=0 ; count_i<counter ; count_i++)
@@ -98,29 +100,35 @@ int main() {
             }
         }
     }
+
+    // record counters
     unsigned long long data[sample][cpu][group][counter+2];
-    for (int k=0 ; k<sample ; k++)
+    for (int k = 0 ; k < sample ; k++)
     {
         usleep(1000);
         int ret = trace_counter("pmu_index", k);
-        if (ret <0)
+        if (ret < 0)
         {
             k = -1;
             continue;
         }
-        for (int i=0 ; i<cpu ; i++)
-            for (int j=0 ; j<group ; j++)
+        for (int i = 0 ; i < cpu ; i++)
+            for (int j = 0 ; j < group ; j++)
             {
                 int re = read(fd[i][j][0], &(data[k][i][j][0]), (counter+2) * sizeof(unsigned long long));
             }
     }
+
+    // write data to file
     FILE *writer = fopen("mini_perf.data", "wb");
     fwrite(data, sizeof(unsigned long long),sample * cpu * group * (counter+2), writer);
     fclose(writer);
+
+    // wirte head to file
     writer = fopen("mini_perf.head", "w");
     for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
-        for (int group_i=0 ; group_i<group ; group_i++)
+        for (int group_i = 0 ; group_i < group ; group_i++)
         {
             fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_i);
             fprintf(writer, "count: time_cpu%d\n",cpu_i);
