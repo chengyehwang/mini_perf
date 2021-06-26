@@ -92,15 +92,21 @@ int main() {
             }
     }
     FILE *writer = fopen("mini_perf.data", "wb");
-    fwrite(data, sizeof(unsigned long long),sample * cpu * (counter+1), writer);
+    fwrite(data, sizeof(unsigned long long),sample * cpu * group * (counter+1), writer);
     fclose(writer);
-    for (int group_i=0 ; group_i<group ; group_i++)
+    writer = fopen("mini_perf.head", "w");
+    for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
-        for(int count_i=0 ; count_i<counter ; count_i++)
+        for (int group_i=0 ; group_i<group ; group_i++)
         {
-            printf("count: %s\n",group_name[group_i][count_i]);
+            fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_i);
+            for(int count_i=0 ; count_i<counter ; count_i++)
+            {
+                fprintf(writer, "count: %s_cpu%d\n",group_name[group_i][count_i],cpu_i);
+            }
         }
     }
+    fclose(writer);
     return 0;
 }
 
