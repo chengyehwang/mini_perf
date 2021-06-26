@@ -33,13 +33,22 @@ int main() {
     int fd[cpu][group][counter];
     const char *group_name[group][counter] = {
         {
+            "raw-l1d-cache",
+            "raw-l1i-cache"
+        },
+        {
+            "raw-l2d-cache",
+            "raw-l3d-cache"
+        }
+        /*
+        {
             "instructions",
             "cache_misses"
         },
         {
             "instructions",
             "branch_misses"
-        }
+        }*/
     };
 
     trace_init();
@@ -51,28 +60,33 @@ int main() {
     };
     event_t event_name[] = {
         #include "event_type_table.h"
-        {.id = 0, .name = "", .comm = ""}
+        {.id = -1, .name = "", .comm = ""}
     };
 
     // search counter id from counter name
-    int group_counter[group][counter]={0};
+    int group_counter[group][counter]={-1};
     for (int group_i = 0 ; group_i < group; group_i++)
     {
         for (int count_i = 0 ; count_i < counter ; count_i++)
         {
             for (int i = 0 ; ;i++)
             {
-                if (event_name[i].id==0)
+                //printf("%s %d\n",event_name[i].name,event_name[i].id);
+                if (event_name[i].id==-1)
                     break;
                 if (strcmp(group_name[group_i][count_i], event_name[i].name)==0)
                 {
                     group_counter[group_i][count_i] = event_name[i].id;
                 }
             }
-            if (group_counter[group_i][count_i] == 0)
+            if (group_counter[group_i][count_i] == -1)
             {
                 printf("%s is missed\n",group_name[group_i][count_i]);
                 return 0;
+            }
+            else
+            {
+                printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]);
             }
         }
     }
