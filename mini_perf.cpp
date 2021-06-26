@@ -59,17 +59,17 @@ int main() {
         for (int group_i=0 ; group_i < group ; group_i++)
         {
             int fd_prev = -1;
-            for (int count_j=0 ; count_j<counter ; count_j++)
+            for (int count_i=0 ; count_i<counter ; count_i++)
             {
-                perf_event_attr& ref = pe[cpu_i][group_i][count_j];
+                perf_event_attr& ref = pe[cpu_i][group_i][count_i];
                 memset(& ref, 0, sizeof(struct perf_event_attr));
                 ref.type = PERF_TYPE_HARDWARE;
                 ref.read_format = PERF_FORMAT_GROUP;
-                ref.config = group_counter[0][count_j];
-                fd[cpu_i][group_i][count_j] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
+                ref.config = group_counter[0][count_i];
+                fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
-                if (fd[cpu_i][group_i][count_j] == -1) {
-                    printf("can not open perf %d %d by syscall",cpu_i,count_j);
+                if (fd[cpu_i][group_i][count_i] == -1) {
+                    printf("can not open perf %d %d by syscall",cpu_i,count_i);
                     return -1;
                 }
             }
