@@ -28,41 +28,33 @@ inline int trace_counter(const char *name, const int value)
 int main() {
     trace_init();
     int cpu = 6;
+    int group = 1;
     int counter = 5;
     int sample = 0x1000;
     struct perf_event_attr pe[cpu][counter];
     int fd[cpu][counter];
-    for (int i=0 ; i<cpu ; i++)
+    int group_counter[group][counter] = {
+        {   PERF_COUNT_HW_CPU_CYCLES,
+            PERF_COUNT_HW_INSTRUCTIONS,
+            PERF_COUNT_HW_CACHE_MISSES,
+            PERF_COUNT_HW_BRANCH_MISSES,
+            PERF_COUNT_HW_BUS_CYCLES
+         }
+    };
+    for (int cpu_i=0 ; cpu_i<cpu ; cpu_i++)
     {
         int fd_prev = -1;
-        for (int j=0 ; j<counter ; j++)
+        for (int count_j=0 ; count_j<counter ; count_j++)
         {
-            perf_event_attr& ref = pe[i][j];
+            perf_event_attr& ref = pe[cpu_i][count_j];
             memset(& ref, 0, sizeof(struct perf_event_attr));
             ref.type = PERF_TYPE_HARDWARE;
             ref.read_format = PERF_FORMAT_GROUP;
-            switch(j)
-            {
-                case 0:
-                    ref.config = PERF_COUNT_HW_CPU_CYCLES;
-                    break;
-                case 1:
-                    ref.config = PERF_COUNT_HW_INSTRUCTIONS;
-                    break;
-                case 2:
-                    ref.config = PERF_COUNT_HW_CACHE_MISSES;
-                    break;
-                case 3:
-                    ref.config = PERF_COUNT_HW_BRANCH_MISSES;
-                    break;
-                case 4:
-                    ref.config = PERF_COUNT_HW_BUS_CYCLES;
-                    break;
-            }
-            fd[i][j] = syscall(__NR_perf_event_open, &ref, -1, i, fd_prev, 0);
-            fd_prev = fd[i][0];
-            if (fd[i][j] == -1) {
-                printf("can not open perf %d %d by syscall",i,j);
+            ref.config = group_counter[0][count_j];
+            fd[cpu_i][count_j] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
+            fd_prev = fd[cpu_i][0];
+            if (fd[cpu_i][count_j] == -1) {
+                printf("can not open perf %d %d by syscall",cpu_i,count_j);
                 return -1;
             }
         }
