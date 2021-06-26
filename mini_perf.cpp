@@ -31,35 +31,38 @@ int main() {
     int group = 1;
     int counter = 5;
     int sample = 0x1000;
-    struct perf_event_attr pe[cpu][counter];
-    int fd[cpu][counter];
+    struct perf_event_attr pe[cpu][group][counter];
+    int fd[cpu][group][counter];
     int group_counter[group][counter] = {
         {   PERF_COUNT_HW_CPU_CYCLES,
             PERF_COUNT_HW_INSTRUCTIONS,
             PERF_COUNT_HW_CACHE_MISSES,
             PERF_COUNT_HW_BRANCH_MISSES,
             PERF_COUNT_HW_BUS_CYCLES
-         }
+        }
     };
     for (int cpu_i=0 ; cpu_i<cpu ; cpu_i++)
     {
-        int fd_prev = -1;
-        for (int count_j=0 ; count_j<counter ; count_j++)
+        for (int group_i=0 ; group_i < group ; group_i++)
         {
-            perf_event_attr& ref = pe[cpu_i][count_j];
-            memset(& ref, 0, sizeof(struct perf_event_attr));
-            ref.type = PERF_TYPE_HARDWARE;
-            ref.read_format = PERF_FORMAT_GROUP;
-            ref.config = group_counter[0][count_j];
-            fd[cpu_i][count_j] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
-            fd_prev = fd[cpu_i][0];
-            if (fd[cpu_i][count_j] == -1) {
-                printf("can not open perf %d %d by syscall",cpu_i,count_j);
-                return -1;
+            int fd_prev = -1;
+            for (int count_j=0 ; count_j<counter ; count_j++)
+            {
+                perf_event_attr& ref = pe[cpu_i][group_i][count_j];
+                memset(& ref, 0, sizeof(struct perf_event_attr));
+                ref.type = PERF_TYPE_HARDWARE;
+                ref.read_format = PERF_FORMAT_GROUP;
+                ref.config = group_counter[0][count_j];
+                fd[cpu_i][group_i][count_j] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
+                fd_prev = fd[cpu_i][group_i][0];
+                if (fd[cpu_i][group_i][count_j] == -1) {
+                    printf("can not open perf %d %d by syscall",cpu_i,count_j);
+                    return -1;
+                }
             }
         }
     }
-    unsigned long long data[sample][cpu][counter+1];
+    unsigned long long data[sample][cpu][group][counter+1];
     for (int k=0 ; k<sample ; k++)
     {
         usleep(1000);
@@ -70,10 +73,9 @@ int main() {
             continue;
         }
         for (int i=0 ; i<cpu ; i++)
-            //for (int j=0 ; j<counter ; j++)
+            for (int j=0 ; j<group ; j++)
             {
-                int j = 0;
-                int re = read(fd[i][j], &(data[k][i][j]), (counter+1) * sizeof(unsigned long long));
+                int re = read(fd[i][j][0], &(data[k][i][j][0]), (counter+1) * sizeof(unsigned long long));
             }
     }
     FILE *writer = fopen("mini_perf.data", "wb");
