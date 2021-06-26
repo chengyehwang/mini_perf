@@ -6,6 +6,7 @@
 #include<string.h>
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
+#include<sys/wait.h>
 
 using namespace std;
 #define ATRACE_MESSAGE_LEN 256
@@ -24,8 +25,9 @@ inline int trace_counter(const char *name, const int value)
     int ret = write(atrace_marker_fd, buf, len);
     return ret;
 }
-int main() {
+int perf(int pid=-1) {
     const int cpu = 1;
+    const int cpu_id[] = {-1};
     const int group = 2;
     const int counter = 5;
     const int sample = 0x1000;
@@ -121,10 +123,10 @@ int main() {
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
                 ref.config = group_counter[0][count_i];
                 ref.freq = 1;
-                fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, -1, cpu_i, fd_prev, 0);
+                fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd[cpu_i][group_i][count_i] == -1) {
-                    printf("can not open perf cpu %d count %d by syscall",cpu_i,group_counter[0][count_i]);
+                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[0][count_i]);
                     return -1;
                 }
             }
@@ -165,15 +167,31 @@ int main() {
     {
         for (int group_i = 0 ; group_i < group ; group_i++)
         {
-            fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_i);
-            fprintf(writer, "count: time_cpu%d\n",cpu_i);
+            fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_id[cpu_i]);
+            fprintf(writer, "count: time_cpu%d\n",cpu_id[cpu_i]);
             for(int count_i=0 ; count_i < group_num[group_i] ; count_i++)
             {
-                fprintf(writer, "count: %s_cpu%d\n",group_name[group_i][count_i],cpu_i);
+                fprintf(writer, "count: %s_cpu%d\n",group_name[group_i][count_i],cpu_id[cpu_i]);
             }
         }
     }
     fclose(writer);
     return 0;
+}
+
+int main(int argc, char* argv[]) {
+    if (argc > 1) {
+        pid_t pid;
+        pid = fork();
+        if (pid == 0) { // child process
+            execl(argv[1],argv[1],NULL);
+        } else { // parent process
+            perf(pid);
+            int status;
+            waitpid(pid, &status, 0);
+        }
+    } else {
+        perf();
+    }
 }
 

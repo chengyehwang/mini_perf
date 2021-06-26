@@ -1,5 +1,5 @@
 host:
-	g++ -DHOST=1 mini_perf.cpp -o mini_perf
+	g++ -g -DHOST=1 mini_perf.cpp -o mini_perf
 	sudo ./mini_perf
 	./mini_perf.py
 export NDK_PROJECT_PATH := $(PWD)
@@ -24,4 +24,5 @@ lala:
 	docker run ubuntu:19.10 wget http://get.perfetto.dev/trace_processor
 	docker run ubuntu:19.10 chmod 755 trace_processor
 	docker run -i -t ubuntu:19.10
-
+pmu:
+	wget https://android.googlesource.com/platform/system/extras/+archive/master/simpleperf.tar.gz
