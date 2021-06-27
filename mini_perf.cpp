@@ -9,6 +9,7 @@
 #include<sys/wait.h>
 #include<stdlib.h>
 #include<getopt.h>
+#include<signal.h>
 
 using namespace std;
 #define ATRACE_MESSAGE_LEN 256
@@ -41,6 +42,12 @@ inline int trace_counter(const char *name, const int value)
     int len = snprintf(buf, ATRACE_MESSAGE_LEN, "C|%d|%s|%i", getpid(), name, value);
     int ret = write(atrace_marker_fd, buf, len);
     return ret;
+}
+
+bool child_finish = false;
+
+void proc_exit(int) {
+    child_finish = true;
 }
 
 int perf(int pid=-1) {
@@ -135,6 +142,10 @@ int perf(int pid=-1) {
     unsigned long long data[sample][cpu][group_index[group]];
     for (int k = 0 ; k < sample ; k++)
     {
+        if (child_finish) {
+            sample = k;
+            break;
+        }
         usleep(interval * 1000);
         if(debug) {
             printf("finish read sample %d / %d\n",k,sample);
@@ -257,8 +268,8 @@ int main(int argc, char* argv[]) {
     sample = duration * 1000 / interval;
 
     if (strlen(exe_path)>0) {
-        pid_t pid;
-        pid = fork();
+        signal(SIGCHLD, proc_exit);
+        pid_t pid = fork();
         if (pid > 0) { // parent process
             if (!flow) {
                 perf(pid);
