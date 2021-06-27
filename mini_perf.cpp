@@ -118,7 +118,8 @@ int perf(int pid=-1) {
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd[cpu_i][group_i][count_i] == -1) {
                     printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]);
-                    exit(0);
+                    fd[cpu_i][group_i][0] = -1;
+                    break;
                 }
             }
         }
@@ -147,6 +148,7 @@ int perf(int pid=-1) {
         for (int i = 0 ; i < cpu ; i++)
             for (int j = 0 ; j < group ; j++)
             {
+                if (fd[i][j][0] == -1) continue;
                 int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
             }
     }
