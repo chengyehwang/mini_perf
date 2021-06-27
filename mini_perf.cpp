@@ -7,6 +7,7 @@
 #include<sys/syscall.h>
 #include<linux/perf_event.h>
 #include<sys/wait.h>
+#include<stdlib.h>
 
 using namespace std;
 #define ATRACE_MESSAGE_LEN 256
@@ -14,6 +15,9 @@ int     atrace_marker_fd = -1;
 
 bool debug=false;
 bool trace=false;
+int interval = 1000;
+int cpu = 0;
+int cpu_id[8];
 void trace_init()
 {
   if (!trace) return;
@@ -31,14 +35,6 @@ inline int trace_counter(const char *name, const int value)
 }
 
 int perf(int pid=-1) {
-    const int cpu = 1;
-    const int cpu_id_set[] = {4};
-    const int cpu_id_all[] = {-1};
-    const int *cpu_id;
-    if (pid==-1)
-        cpu_id = cpu_id_set;
-    else
-        cpu_id = cpu_id_all;
     const int group = 2;
     const int counter = 5;
     const int sample = 0x1000;
@@ -157,7 +153,7 @@ int perf(int pid=-1) {
     unsigned long long data[sample][cpu][group_index[group]];
     for (int k = 0 ; k < sample ; k++)
     {
-        usleep(1000);
+        usleep(interval * 1000);
         if(debug) {
             printf("finish read sample %d / %d\n",k,sample);
         }
@@ -200,13 +196,34 @@ int perf(int pid=-1) {
 char exe_path[100] = "";
 int main(int argc, char* argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "e:tg")) != -1) {
+    int cpu_select = -1;
+    while ((opt = getopt(argc, argv, "e:tgi:c:")) != -1) {
         switch (opt) {
             case 'e': strcpy(exe_path, optarg); break;
             case 't': trace = true; break;
             case 'g': debug = true; break;
-            default: printf("-e exe_file -g: debug -t: trace"); return(0);
+            case 'i': interval = atoi(optarg); break;
+            case 'c': cpu_select = strtol(optarg, NULL, 16); break;
+            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval\n-c: cpu\n"); return(0);
         }
+    }
+    printf("cpu_select %d\n",cpu_select);
+    if (cpu_select == 0xff && strlen(exe_path)>0) {
+        cpu_id[0] = -1;
+        cpu=1;
+    } else {
+        cpu = 0;
+        for (int i=0 ; i<8 ; i++)
+        {
+            if (cpu_select & (1<<i)) {
+                cpu_id[cpu] = i;
+                cpu ++;
+            }
+        }
+    }
+    for (int i=0 ; i<cpu ; i++)
+    {
+        printf("cpu %d is selected\n",cpu_id[i]);
     }
     if (strlen(exe_path)>0) {
         pid_t pid;
