@@ -275,7 +275,8 @@ int main(int argc, char* argv[]) {
                 perf(pid);
             }
             int status;
-            waitpid(pid, &status, 0);
+            if (!child_finish)
+                waitpid(pid, &status, 0);
         } else if (pid ==0) { // child process
             execl("/bin/sh", "-c", exe_path,NULL);
         } else {
