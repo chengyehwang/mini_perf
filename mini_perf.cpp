@@ -12,23 +12,33 @@ using namespace std;
 #define ATRACE_MESSAGE_LEN 256
 int     atrace_marker_fd = -1;
 
+bool debug=false;
+bool trace=false;
 void trace_init()
 {
+  if (!trace) return;
   atrace_marker_fd = open("/sys/kernel/debug/tracing/trace_marker", O_WRONLY);
   if (atrace_marker_fd == -1)   { /* do error handling */ }
 }
 
 inline int trace_counter(const char *name, const int value)
 {
+    if (!trace) return 0;
     char buf[ATRACE_MESSAGE_LEN];
     int len = snprintf(buf, ATRACE_MESSAGE_LEN, "C|%d|%s|%i", getpid(), name, value);
     int ret = write(atrace_marker_fd, buf, len);
     return ret;
 }
-bool debug=false;
+
 int perf(int pid=-1) {
     const int cpu = 1;
-    const int cpu_id[] = {-1};
+    const int cpu_id_set[] = {4};
+    const int cpu_id_all[] = {-1};
+    const int *cpu_id;
+    if (pid==-1)
+        cpu_id = cpu_id_set;
+    else
+        cpu_id = cpu_id_all;
     const int group = 2;
     const int counter = 5;
     const int sample = 0x1000;
@@ -186,14 +196,16 @@ int perf(int pid=-1) {
     fclose(writer);
     return 0;
 }
+
 char exe_path[100] = "";
 int main(int argc, char* argv[]) {
     int opt;
-    while ((opt = getopt(argc, argv, "e:g")) != -1) {
+    while ((opt = getopt(argc, argv, "e:tg")) != -1) {
         switch (opt) {
             case 'e': strcpy(exe_path, optarg); break;
+            case 't': trace = true; break;
             case 'g': debug = true; break;
-            default: printf("-e exe_file -g: debug"); return(0);
+            default: printf("-e exe_file -g: debug -t: trace"); return(0);
         }
     }
     if (strlen(exe_path)>0) {
