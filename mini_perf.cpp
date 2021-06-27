@@ -133,7 +133,6 @@ int perf(int pid=-1) {
             }
         }
     }
-
     // record counters
     int group_index[group+1];
     group_index[0] = 0;
@@ -165,7 +164,7 @@ int perf(int pid=-1) {
                 int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
                 if (print) {
                     for(int m = 0 ; m < group_num[j] ; m++) {
-                        printf("%s %d\n",group_name[j][m],data[k][i][group_index[j]+m]);
+                        printf("%s %lld\n",group_name[j][m],data[k][i][group_index[j]+m]);
                     }
                 }
             }
@@ -173,7 +172,30 @@ int perf(int pid=-1) {
             struct timeval tp;
             gettimeofday(&tp, NULL);
             long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-            printf("time %f ms\n",ms);
+            printf("time %ld ms\n",ms);
+        }
+        if ((interval * k % 1000) == 0) {
+            // register counter
+            for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
+            {
+                for (int group_i = 0 ; group_i < group ; group_i++)
+                {
+                    int fd_prev = -1;
+                    for (int count_i=0 ; count_i < group_num[group_i] ; count_i++)
+                    {
+                        if (fd[cpu_i][group_i][count_i] != -1) break;
+                        perf_event_attr& ref = pe[cpu_i][group_i][count_i];
+
+                        fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
+                        fd_prev = fd[cpu_i][group_i][0];
+                        if (fd[cpu_i][group_i][count_i] == -1) {
+                            fd[cpu_i][group_i][0] = -1;
+                            break;
+                        }
+
+                    }
+                }
+            }
         }
     }
 
