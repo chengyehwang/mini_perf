@@ -18,8 +18,13 @@ bool trace=false;
 bool flow=false;
 int interval = 1; // ms
 int sample = 0x1000;
+const int counter_max=6; // max 6 counter per group
+const int group_max=8; // max 8 group
+const int cpu_max=8;
+int group=0;
 int cpu = 0;
-int cpu_id[8];
+int cpu_id[cpu_max]; // 8 core
+char group_name[group_max][counter_max][20] = {0};
 void trace_init()
 {
   if (!trace) return;
@@ -37,38 +42,9 @@ inline int trace_counter(const char *name, const int value)
 }
 
 int perf(int pid=-1) {
-    const int group = 2;
-    const int counter = 5;
-    struct perf_event_attr pe[cpu][group][counter];
-    int fd[cpu][group][counter];
+    struct perf_event_attr pe[cpu][group][counter_max];
+    int fd[cpu][group][counter_max];
     int group_num[group] = {0};
-    const char *group_name[group][counter] = {
-#ifdef HOST
-        {
-            "instructions",
-            "cache_misses"
-        },
-        {
-            "instructions",
-            "branch_misses"
-        }
-#else
-        {
-            "raw-inst-retired",
-            "raw-l1i-cache",
-            "raw-l1i-cache-refill",
-            "raw-l1d-cache",
-            "raw-l1d-cache-refill"
-        },
-        {
-            "raw-inst-retired",
-            "raw-l2d-cache",
-            "raw-l2d-cache-refill",
-            "raw-l3d-cache",
-            "raw-l3d-cache-refill"
-        }
-#endif
-    };
 
     trace_init();
     #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .name = NAME, .comm = COM},
@@ -83,10 +59,10 @@ int perf(int pid=-1) {
     };
 
     // search counter id from counter name
-    int group_counter[group][counter]={-1};
+    int group_counter[group][counter_max]={-1};
     for (int group_i = 0 ; group_i < group; group_i++)
     {
-        for (int count_i = 0 ; count_i < counter ; count_i++)
+        for (int count_i = 0 ; count_i < counter_max ; count_i++)
         {
             if (group_name[group_i][count_i] == 0)
             {
@@ -195,15 +171,27 @@ int perf(int pid=-1) {
 }
 
 char exe_path[100] = "";
+void group_parsing(char *string) {
+    int index = 0;
+    char * token = strtok(string, ",");
+    strcpy(group_name[group][index++], token);
+    while( token != NULL) {
+        token = strtok(NULL, ",");
+        strcpy(group_name[group][index++], token);
+    }
+    group ++;
+}
+
 int main(int argc, char* argv[]) {
     int opt;
     int cpu_select = -1;
-    while ((opt = getopt(argc, argv, "fe:tgi:s:c:")) != -1) {
+    while ((opt = getopt(argc, argv, "fe:tdg:i:s:c:")) != -1) {
         switch (opt) {
             case 'f': flow = true; break;
             case 'e': strcpy(exe_path, optarg); break;
             case 't': trace = true; break;
-            case 'g': debug = true; break;
+            case 'd': debug = true; break;
+            case 'g': group_parsing(optarg); break;
             case 'i': interval = atoi(optarg); break;
             case 's': sample = atoi(optarg); break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
