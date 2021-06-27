@@ -16,6 +16,7 @@ int     atrace_marker_fd = -1;
 bool debug=false;
 bool trace=false;
 int interval = 1000;
+int sample = 0x1000;
 int cpu = 0;
 int cpu_id[8];
 void trace_init()
@@ -37,7 +38,6 @@ inline int trace_counter(const char *name, const int value)
 int perf(int pid=-1) {
     const int group = 2;
     const int counter = 5;
-    const int sample = 0x1000;
     struct perf_event_attr pe[cpu][group][counter];
     int fd[cpu][group][counter];
     int group_num[group] = {0};
@@ -197,14 +197,15 @@ char exe_path[100] = "";
 int main(int argc, char* argv[]) {
     int opt;
     int cpu_select = -1;
-    while ((opt = getopt(argc, argv, "e:tgi:c:")) != -1) {
+    while ((opt = getopt(argc, argv, "e:tgi:s:c:")) != -1) {
         switch (opt) {
             case 'e': strcpy(exe_path, optarg); break;
             case 't': trace = true; break;
             case 'g': debug = true; break;
             case 'i': interval = atoi(optarg); break;
+            case 's': sample = atoi(optarg); break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
-            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval\n-c: cpu\n"); return(0);
+            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval\n-s sample\n-c: cpu\n"); return(0);
         }
     }
     printf("cpu_select %d\n",cpu_select);
