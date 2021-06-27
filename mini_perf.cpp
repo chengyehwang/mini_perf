@@ -64,6 +64,7 @@ int perf(int pid=-1) {
     int group_counter[group][counter_max];
     for (int group_i = 0 ; group_i < group; group_i++)
     {
+        group_num[group_i] = 0;
         for (int count_i = 0 ; count_i < counter_max ; count_i++)
         {
             if (strlen(group_name[group_i][count_i]) == 0)
