@@ -154,12 +154,20 @@ int perf(int pid=-1) {
     }
 
     // write data to file
+#ifdef HOST
     FILE *writer = fopen("mini_perf.data", "wb");
+#else
+    FILE *writer = fopen("/data/local/tmp/mini_perf.data", "wb");
+#endif
     fwrite(data, sizeof(unsigned long long),sample * cpu * group_index[group], writer);
     fclose(writer);
 
     // wirte head to file
+#ifdef HOST
     writer = fopen("mini_perf.head", "w");
+#else
+    writer = fopen("/data/local/tmp/mini_perf.head", "w");
+#endif
     for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
         for (int group_i = 0 ; group_i < group ; group_i++)
