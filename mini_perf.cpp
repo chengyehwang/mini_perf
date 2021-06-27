@@ -25,6 +25,7 @@ inline int trace_counter(const char *name, const int value)
     int ret = write(atrace_marker_fd, buf, len);
     return ret;
 }
+bool debug=false;
 int perf(int pid=-1) {
     const int cpu = 1;
     const int cpu_id[] = {-1};
@@ -119,7 +120,11 @@ int perf(int pid=-1) {
             {
                 perf_event_attr& ref = pe[cpu_i][group_i][count_i];
                 memset(& ref, 0, sizeof(struct perf_event_attr));
+#ifdef HOST
                 ref.type = PERF_TYPE_HARDWARE;
+#else
+                ref.type = PERF_TYPE_RAW;
+#endif
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
                 ref.config = group_counter[0][count_i];
                 ref.freq = 1;
@@ -143,6 +148,9 @@ int perf(int pid=-1) {
     for (int k = 0 ; k < sample ; k++)
     {
         usleep(1000);
+        if(debug) {
+            printf("finish read sample %d / %d\n",k,sample);
+        }
         int ret = trace_counter("pmu_index", k);
         if (ret < 0)
         {
@@ -178,9 +186,17 @@ int perf(int pid=-1) {
     fclose(writer);
     return 0;
 }
-
+char exe_path[100] = "";
 int main(int argc, char* argv[]) {
-    if (argc > 1) {
+    int opt;
+    while ((opt = getopt(argc, argv, "e:g")) != -1) {
+        switch (opt) {
+            case 'e': strcpy(exe_path, optarg); break;
+            case 'g': debug = true; break;
+            default: printf("-e exe_file -g: debug"); return(0);
+        }
+    }
+    if (strlen(exe_path)>0) {
         pid_t pid;
         pid = fork();
         if (pid == 0) { // child process
