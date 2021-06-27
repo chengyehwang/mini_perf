@@ -8,6 +8,7 @@
 #include<linux/perf_event.h>
 #include<sys/wait.h>
 #include<stdlib.h>
+#include<getopt.h>
 
 using namespace std;
 #define ATRACE_MESSAGE_LEN 256
@@ -17,7 +18,8 @@ bool debug=false;
 bool trace=false;
 bool flow=false;
 int interval = 1; // ms
-int sample = 0x1000;
+int duration = 10; // s
+int sample;
 const int counter_max=6; // max 6 counter per group
 const int group_max=8; // max 8 group
 const int cpu_max=8;
@@ -189,15 +191,29 @@ void group_parsing(char *string) {
 int main(int argc, char* argv[]) {
     int opt;
     int cpu_select = -1;
-    while ((opt = getopt(argc, argv, "fe:tdg:i:s:c:")) != -1) {
+    struct option longopts [] = {
+        {"group",required_argument, NULL,0},
+        {"interval",required_argument, NULL,0},
+        {"duration",required_argument, NULL,0},
+        {0,0,0,0}
+    };
+    int option_index = 0;
+    while ((opt = getopt_long(argc, argv, "fe:tdc:",longopts,&option_index)) != -1) {
         switch (opt) {
+            case 0:
+                if (strcmp(longopts[option_index].name,"group")==0)
+                    group_parsing(optarg);
+                else if (strcmp(longopts[option_index].name,"interval")==0)
+                    interval = atoi(optarg);
+                else if (strcmp(longopts[option_index].name,"duration")==0) {
+                    duration = atoi(optarg);
+                }
+                break;
+
             case 'f': flow = true; break;
             case 'e': strcpy(exe_path, optarg); break;
             case 't': trace = true; break;
             case 'd': debug = true; break;
-            case 'g': group_parsing(optarg); break;
-            case 'i': interval = atoi(optarg); break;
-            case 's': sample = atoi(optarg); break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
@@ -220,6 +236,10 @@ int main(int argc, char* argv[]) {
     {
         printf("cpu %d is selected\n",cpu_id[i]);
     }
+
+    // sample data est
+    sample = duration * 1000 / interval;
+
     if (strlen(exe_path)>0) {
         pid_t pid;
         pid = fork();
