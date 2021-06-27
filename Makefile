@@ -1,6 +1,6 @@
 host:
 	g++ -g -DHOST=1 mini_perf.cpp -o mini_perf
-	sudo ./mini_perf
+	./mini_perf -g instructions
 	./mini_perf.py
 export NDK_PROJECT_PATH := $(PWD)
 build:

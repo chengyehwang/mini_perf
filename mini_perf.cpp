@@ -24,7 +24,7 @@ const int cpu_max=8;
 int group=0;
 int cpu = 0;
 int cpu_id[cpu_max]; // 8 core
-char group_name[group_max][counter_max][20] = {0};
+char group_name[group_max][counter_max][30] = {0};
 void trace_init()
 {
   if (!trace) return;
@@ -176,9 +176,12 @@ void group_parsing(char *string) {
     int index = 0;
     char * token = strtok(string, ",");
     strcpy(group_name[group][index++], token);
+
     while( token != NULL) {
         token = strtok(NULL, ",");
-        strcpy(group_name[group][index++], token);
+        if (token != NULL) {
+            strcpy(group_name[group][index++], token);
+        }
     }
     group ++;
 }
