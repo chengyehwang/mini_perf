@@ -15,7 +15,8 @@ int     atrace_marker_fd = -1;
 
 bool debug=false;
 bool trace=false;
-int interval = 1000;
+bool flow=false;
+int interval = 1; // ms
 int sample = 0x1000;
 int cpu = 0;
 int cpu_id[8];
@@ -197,15 +198,16 @@ char exe_path[100] = "";
 int main(int argc, char* argv[]) {
     int opt;
     int cpu_select = -1;
-    while ((opt = getopt(argc, argv, "e:tgi:s:c:")) != -1) {
+    while ((opt = getopt(argc, argv, "fe:tgi:s:c:")) != -1) {
         switch (opt) {
+            case 'f': flow = true; break;
             case 'e': strcpy(exe_path, optarg); break;
             case 't': trace = true; break;
             case 'g': debug = true; break;
             case 'i': interval = atoi(optarg); break;
             case 's': sample = atoi(optarg); break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
-            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval\n-s sample\n-c: cpu\n"); return(0);
+            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
     }
     printf("cpu_select %d\n",cpu_select);
@@ -229,12 +231,16 @@ int main(int argc, char* argv[]) {
     if (strlen(exe_path)>0) {
         pid_t pid;
         pid = fork();
-        if (pid == 0) { // child process
-            execl(argv[1],argv[1],NULL);
-        } else { // parent process
-            perf(pid);
+        if (pid > 0) { // parent process
+            if (!flow) {
+                perf(pid);
+            }
             int status;
             waitpid(pid, &status, 0);
+        } else if (pid ==0) { // child process
+            execl("/bin/sh", "-c", exe_path,NULL);
+        } else {
+            printf("fail in process fork\n");
         }
     } else {
         perf();
