@@ -181,13 +181,17 @@ int perf(int pid=-1) {
 #endif
     for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
+        char cpu_name[10]="";
+        if (cpu_id[cpu_i] != -1) {
+            sprintf(cpu_name, "_cpu%d",cpu_id[cpu_i]);
+        }
         for (int group_i = 0 ; group_i < group ; group_i++)
         {
-            fprintf(writer, "count: group%d_cpu%d\n",group_i,cpu_id[cpu_i]);
-            fprintf(writer, "count: time_cpu%d\n",cpu_id[cpu_i]);
+            fprintf(writer, "count: group_g%d%s\n",group_i,cpu_name);
+            fprintf(writer, "count: time_g%d%s\n",group_i,cpu_name);
             for(int count_i=0 ; count_i < group_num[group_i] ; count_i++)
             {
-                fprintf(writer, "count: %s_cpu%d\n",group_name[group_i][count_i],cpu_id[cpu_i]);
+                fprintf(writer, "count: %s_g%d%s\n",group_name[group_i][count_i],group_i,cpu_name);
             }
         }
     }
