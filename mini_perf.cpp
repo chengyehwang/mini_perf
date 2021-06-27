@@ -287,10 +287,11 @@ int main(int argc, char* argv[]) {
     }
     printf("exe_path %s\n",exe_path);
     printf("cpu_select %d\n",cpu_select);
-    if (cpu_select == 0xff && strlen(exe_path)>0) {
+    /*if (cpu_select == 0xff && strlen(exe_path)>0) {
         cpu_id[0] = -1;
         cpu=1;
-    } else {
+    } else {*/
+    if (true) {
         cpu = 0;
         for (int i=0 ; i<8 ; i++)
         {
@@ -313,7 +314,7 @@ int main(int argc, char* argv[]) {
         pid_t pid = fork();
         if (pid > 0) { // parent process
             if (!flow) {
-                perf(pid);
+                perf();
             }
             int status;
             if (!child_finish)
