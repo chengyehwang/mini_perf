@@ -85,7 +85,7 @@ int perf(int pid=-1) {
             if (group_counter[group_i][count_i] == -1)
             {
                 printf("%s is missed\n",group_name[group_i][count_i]);
-                return 0;
+                exit(0);
             }
             else
             {
@@ -117,7 +117,7 @@ int perf(int pid=-1) {
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd[cpu_i][group_i][count_i] == -1) {
                     printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[0][count_i]);
-                    return -1;
+                    exit(0);
                 }
             }
         }
@@ -218,6 +218,10 @@ int main(int argc, char* argv[]) {
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
     }
+    if (optind < argc) {
+        strcpy(exe_path, argv[optind]);
+    }
+    printf("exe_path %s\n",exe_path);
     printf("cpu_select %d\n",cpu_select);
     if (cpu_select == 0xff && strlen(exe_path)>0) {
         cpu_id[0] = -1;
