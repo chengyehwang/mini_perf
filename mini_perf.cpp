@@ -111,12 +111,12 @@ int perf(int pid=-1) {
                 ref.type = PERF_TYPE_RAW;
 #endif
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
-                ref.config = group_counter[0][count_i];
+                ref.config = group_counter[group_i][count_i];
                 ref.freq = 1;
                 fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd[cpu_i][group_i][count_i] == -1) {
-                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[0][count_i]);
+                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]);
                     exit(0);
                 }
             }
@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
             case 't': trace = true; break;
             case 'd': debug = true; break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
-            case 'a': cpu_select = 0xff break;
+            case 'a': cpu_select = 0xff; break;
             case 'e': group_parsing(optarg); break;
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
