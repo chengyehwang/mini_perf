@@ -122,14 +122,18 @@ int perf(int pid=-1) {
 #endif
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
                 ref.config = group_counter[group_i][count_i];
+                ref.sample_freq = 10;
                 ref.freq = 1;
-                fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
+                int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
-                if (fd[cpu_i][group_i][count_i] == -1) {
+                if (fd_ref == -1) {
                     printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]);
                     fd[cpu_i][group_i][0] = -1;
                     break;
                 }
+                fd[cpu_i][group_i][count_i] = fd_ref;
+                ioctl(fd_ref, PERF_EVENT_IOC_RESET, 0);
+                ioctl(fd_ref, PERF_EVENT_IOC_ENABLE, 0);
             }
         }
     }
@@ -200,6 +204,19 @@ int perf(int pid=-1) {
         }
     }
 
+    // close all file handler
+    for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
+    {
+        for (int group_i = 0 ; group_i < group ; group_i++)
+        {
+            for (int count_i=0 ; count_i < group_num[group_i] ; count_i++) {
+                int fd_ref = fd[cpu_i][group_i][count_i];
+                if (fd_ref != -1) {
+                    close(fd_ref);
+                }
+            }
+        }
+    }
     // write data to file
 #ifdef HOST
     FILE *writer = fopen("mini_perf.data", "wb");
