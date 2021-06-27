@@ -44,7 +44,7 @@ inline int trace_counter(const char *name, const int value)
 int perf(int pid=-1) {
     struct perf_event_attr pe[cpu][group][counter_max];
     int fd[cpu][group][counter_max];
-    int group_num[group] = {0};
+    int group_num[group];
 
     trace_init();
     #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .name = NAME, .comm = COM},
@@ -59,12 +59,12 @@ int perf(int pid=-1) {
     };
 
     // search counter id from counter name
-    int group_counter[group][counter_max]={-1};
+    int group_counter[group][counter_max];
     for (int group_i = 0 ; group_i < group; group_i++)
     {
         for (int count_i = 0 ; count_i < counter_max ; count_i++)
         {
-            if (group_name[group_i][count_i] == 0)
+            if (strlen(group_name[group_i][count_i]) == 0)
             {
                 group_counter[group_i][count_i] = -1;
                 continue;
@@ -122,7 +122,8 @@ int perf(int pid=-1) {
     }
 
     // record counters
-    int group_index[group+1] = {0};
+    int group_index[group+1];
+    group_index[0] = 0;
     for (int i=0 ; i < group ; i++)
     {
         group_index[i+1] = group_index[i] + group_num[i] + 2;
