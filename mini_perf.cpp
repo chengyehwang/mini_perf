@@ -10,6 +10,7 @@
 #include<stdlib.h>
 #include<getopt.h>
 #include<signal.h>
+#include<sys/time.h>
 
 using namespace std;
 #define ATRACE_MESSAGE_LEN 256
@@ -18,6 +19,7 @@ int     atrace_marker_fd = -1;
 bool debug=false;
 bool trace=false;
 bool flow=false;
+bool print=false;
 int interval = 1; // ms
 int duration = 10; // s
 int sample;
@@ -161,7 +163,18 @@ int perf(int pid=-1) {
             {
                 if (fd[i][j][0] == -1) continue;
                 int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
+                if (print) {
+                    for(int m = 0 ; m < group_num[j] ; m++) {
+                        printf("%s %d\n",group_name[j][m],data[k][i][group_index[j]+m]);
+                    }
+                }
             }
+        if (print) {
+            struct timeval tp;
+            gettimeofday(&tp, NULL);
+            long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+            printf("time %f ms\n",ms);
+        }
     }
 
     // write data to file
@@ -224,7 +237,7 @@ int main(int argc, char* argv[]) {
         {0,0,0,0}
     };
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "ftdc:ae:",longopts,&option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "ftdc:ae:p",longopts,&option_index)) != -1) {
         switch (opt) {
             case 0:
                 if (strcmp(longopts[option_index].name,"group")==0)
@@ -242,6 +255,7 @@ int main(int argc, char* argv[]) {
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
             case 'a': cpu_select = 0xff; break;
             case 'e': group_parsing(optarg); break;
+            case 'p': print = true; break;
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
     }
