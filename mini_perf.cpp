@@ -90,6 +90,7 @@ int perf(int pid=-1) {
                 {
                     group_counter[group_i][count_i] = &(event_name[i]);
                     printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]->id);
+                    break;
                 }
                 if (event_name[i].id == -1) {
                     printf("%s is missed\n",group_name[group_i][count_i]);

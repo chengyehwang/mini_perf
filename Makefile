@@ -1,6 +1,6 @@
 host:
 	g++ -g -DHOST=1 mini_perf.cpp -o mini_perf
-	./mini_perf -e inst --group instructions,raw-l1d-cache --interval 10 --duration 10 -a ./sleep.sh
+	sudo ./mini_perf --group instructions --interval 10 --duration 10 -a ./sleep.sh
 	./mini_perf.py
 export NDK_PROJECT_PATH := $(PWD)
 build:
