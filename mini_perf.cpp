@@ -58,19 +58,20 @@ int perf(int pid=-1) {
     int group_num[group];
 
     trace_init();
-    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .name = NAME, .comm = COM},
+    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .type=TYPE, .name = NAME, .comm = COM},
     struct event_t {
         int id;
+        int type;
         const char *name;
         const char *comm;
     };
     event_t event_name[] = {
         #include "event_type_table.h"
-        {.id = -1, .name = "", .comm = ""}
+        {.id = -1, .type = 0, .name = "", .comm = ""}
     };
 
     // search counter id from counter name
-    int group_counter[group][counter_max];
+    event_t *group_counter[group][counter_max];
     for (int group_i = 0 ; group_i < group; group_i++)
     {
         group_num[group_i] = 0;
@@ -78,28 +79,22 @@ int perf(int pid=-1) {
         {
             if (strlen(group_name[group_i][count_i]) == 0)
             {
-                group_counter[group_i][count_i] = -1;
+                group_counter[group_i][count_i] = NULL;
                 continue;
             }
             group_num[group_i] += 1;
             for (int i = 0 ; ;i++)
             {
                 //printf("%s %d\n",event_name[i].name,event_name[i].id);
-                if (event_name[i].id == -1)
-                    break;
                 if (strcmp(group_name[group_i][count_i], event_name[i].name)==0)
                 {
-                    group_counter[group_i][count_i] = event_name[i].id;
+                    group_counter[group_i][count_i] = &(event_name[i]);
+                    printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]->id);
                 }
-            }
-            if (group_counter[group_i][count_i] == -1)
-            {
-                printf("%s is missed\n",group_name[group_i][count_i]);
-                exit(0);
-            }
-            else
-            {
-                printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]);
+                if (event_name[i].id == -1) {
+                    printf("%s is missed\n",group_name[group_i][count_i]);
+                    exit(0);
+                }
             }
         }
         printf("group %d: num=%d\n",group_i, group_num[group_i]);
@@ -115,19 +110,15 @@ int perf(int pid=-1) {
             {
                 perf_event_attr& ref = pe[cpu_i][group_i][count_i];
                 memset(& ref, 0, sizeof(struct perf_event_attr));
-#ifdef HOST
-                ref.type = PERF_TYPE_HARDWARE;
-#else
-                ref.type = PERF_TYPE_RAW;
-#endif
+                ref.type = group_counter[group_i][count_i]->type;
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
-                ref.config = group_counter[group_i][count_i];
+                ref.config = group_counter[group_i][count_i]->id;
                 ref.sample_freq = 10;
                 ref.freq = 1;
                 int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd_ref == -1) {
-                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]);
+                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->id);
                     fd[cpu_i][group_i][0] = -1;
                     break;
                 }
