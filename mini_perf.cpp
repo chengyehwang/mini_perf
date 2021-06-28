@@ -62,16 +62,16 @@ int perf(int pid=-1) {
     int group_num[group];
 
     trace_init();
-    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, ID, COM, S) {.id = ID, .type=TYPE, .name = NAME, .comm = COM},
+    #define EVENT_TYPE_TABLE_ENTRY(NAME, TYPE, CONFIG, COM, S) {.config = CONFIG, .type=TYPE, .name = NAME, .comm = COM},
     struct event_t {
-        int id;
-        int type;
+        unsigned long long config;
+        unsigned int type;
         const char *name;
         const char *comm;
     };
     event_t event_name[] = {
         #include "event_type_table.h"
-        {.id = -1, .type = 0, .name = "", .comm = ""}
+        {.config = 0, .type = 0, .name = "", .comm = ""}
     };
 
     // search counter id from counter name
@@ -93,10 +93,10 @@ int perf(int pid=-1) {
                 if (strcmp(group_name[group_i][count_i], event_name[i].name)==0)
                 {
                     group_counter[group_i][count_i] = &(event_name[i]);
-                    printf("name=%s id=%d\n",group_name[group_i][count_i],group_counter[group_i][count_i]->id);
+                    printf("name=%s config=%llu\n",group_name[group_i][count_i],group_counter[group_i][count_i]->config);
                     break;
                 }
-                if (event_name[i].id == -1) {
+                if (strcmp(event_name[i].name,"")==0) {
                     printf("%s is missed\n",group_name[group_i][count_i]);
                     exit(0);
                 }
@@ -117,15 +117,18 @@ int perf(int pid=-1) {
                 memset(& ref, 0, sizeof(struct perf_event_attr));
                 ref.type = group_counter[group_i][count_i]->type;
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
-                ref.config = group_counter[group_i][count_i]->id;
+                ref.config = group_counter[group_i][count_i]->config;
                 ref.sample_freq = 10;
                 ref.freq = 1;
                 int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd_ref == -1) {
-                    printf("can not open perf pid %d, cpu %d count %d by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->id);
+                    printf("can not open perf pid %d, cpu %d config %llu by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->config);
                     fd[cpu_i][group_i][0] = -1;
                     break;
+                }
+                else {
+                    printf("open perf pid %d, cpu %d config %llu by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->config);
                 }
                 fd[cpu_i][group_i][count_i] = fd_ref;
                 ioctl(fd_ref, PERF_EVENT_IOC_RESET, 0);
