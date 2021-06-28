@@ -116,11 +116,13 @@ int perf(int pid=-1) {
                 perf_event_attr& ref = pe[cpu_i][group_i][count_i];
                 memset(& ref, 0, sizeof(struct perf_event_attr));
                 ref.type = group_counter[group_i][count_i]->type;
+                ref.size = sizeof(ref);
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
                 ref.config = group_counter[group_i][count_i]->config;
                 ref.sample_freq = 10;
                 ref.freq = 1;
                 int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
+                fd[cpu_i][group_i][count_i] = fd_ref;
                 fd_prev = fd[cpu_i][group_i][0];
                 if (fd_ref == -1) {
                     printf("can not open perf pid %d, cpu %d config %llu by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->config);
@@ -130,7 +132,6 @@ int perf(int pid=-1) {
                 else {
                     printf("open perf pid %d, cpu %d config %llu by syscall\n",pid, cpu_id[cpu_i], group_counter[group_i][count_i]->config);
                 }
-                fd[cpu_i][group_i][count_i] = fd_ref;
                 ioctl(fd_ref, PERF_EVENT_IOC_RESET, 0);
                 ioctl(fd_ref, PERF_EVENT_IOC_ENABLE, 0);
             }
