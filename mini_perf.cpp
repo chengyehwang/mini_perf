@@ -20,6 +20,8 @@ bool debug=false;
 bool trace=false;
 bool flow=false;
 bool print=false;
+int user=false;
+int pids=-1;
 int interval = 1; // ms
 int duration = 10; // s
 int sample;
@@ -53,6 +55,8 @@ void proc_exit(int) {
 }
 
 int perf(int pid=-1) {
+    if (pid != -1)
+        printf("profile pid %d\n",pid);
     struct perf_event_attr pe[cpu][group][counter_max];
     int fd[cpu][group][counter_max];
     int group_num[group];
@@ -269,7 +273,7 @@ int main(int argc, char* argv[]) {
         {0,0,0,0}
     };
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "ftdc:ae:p",longopts,&option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "ftdc:ase:p:",longopts,&option_index)) != -1) {
         switch (opt) {
             case 0:
                 if (strcmp(longopts[option_index].name,"group")==0)
@@ -286,8 +290,9 @@ int main(int argc, char* argv[]) {
             case 'd': debug = true; break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
             case 'a': cpu_select = 0xff; break;
+            case 's': print = true; break;
             case 'e': group_parsing(optarg); break;
-            case 'p': print = true; break;
+            case 'p': pids = atoi(optarg); break;
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
     }
@@ -323,18 +328,19 @@ int main(int argc, char* argv[]) {
         pid_t pid = fork();
         if (pid > 0) { // parent process
             if (!flow) {
-                perf();
+                perf(pid);
             }
             int status;
             if (!child_finish)
                 waitpid(pid, &status, 0);
         } else if (pid ==0) { // child process
+            printf("child process: /bin/sh -c %s",exe_path);
             execl("/bin/sh", "-c", exe_path,NULL);
         } else {
             printf("fail in process fork\n");
         }
     } else {
-        perf();
+        perf(pids);
     }
 }
 
