@@ -165,7 +165,7 @@ int perf(int pid=-1) {
                 if (re == -1) {fd[i][j][0] = -1;} // read err
                 if (print) {
                     for(int m = 0 ; m < group_num[j] ; m++) {
-                        printf("%s %lld\n",group_name[j][m],data[k][i][group_index[j]+m]);
+                        printf("%s %lld\n",group_name[j][m],data[k][i][group_index[j]+2+m]);
                     }
                 }
             }
@@ -266,6 +266,7 @@ void group_parsing(char *string) {
 int main(int argc, char* argv[]) {
     int opt;
     int cpu_select = -1;
+    bool cpu_all = false;
     struct option longopts [] = {
         {"group",required_argument, NULL,0},
         {"interval",required_argument, NULL,0},
@@ -289,7 +290,7 @@ int main(int argc, char* argv[]) {
             case 't': trace = true; break;
             case 'd': debug = true; break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
-            case 'a': cpu_select = 0xff; break;
+            case 'a': cpu_all = true; break;
             case 's': print = true; break;
             case 'e': group_parsing(optarg); break;
             case 'p': pids = atoi(optarg); break;
@@ -301,11 +302,10 @@ int main(int argc, char* argv[]) {
     }
     printf("exe_path %s\n",exe_path);
     printf("cpu_select %d\n",cpu_select);
-    /*if (cpu_select == 0xff && strlen(exe_path)>0) {
+    if (cpu_all) {
         cpu_id[0] = -1;
         cpu=1;
-    } else {*/
-    if (true) {
+    } else {
         cpu = 0;
         for (int i=0 ; i<8 ; i++)
         {
