@@ -167,12 +167,13 @@ int perf(int pid=-1) {
         for (int i = 0 ; i < cpu ; i++)
             for (int j = 0 ; j < group ; j++)
             {
+
                 if (fd[i][j][0] == -1) continue;
                 int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
                 if (re == -1) {fd[i][j][0] = -1;} // read err
                 if (print) {
                     for(int m = 0 ; m < group_num[j] ; m++) {
-                        printf("%s %lld\n",group_name[j][m],data[k][i][group_index[j]+2+m]);
+                        printf(" %10lld %20s_g%d_cpu%d #\n",data[k][i][group_index[j]+2+m], group_name[j][m],j,i);
                     }
                 }
             }
@@ -278,13 +279,27 @@ int main(int argc, char* argv[]) {
         {"group",required_argument, NULL,0},
         {"interval",required_argument, NULL,0},
         {"duration",required_argument, NULL,0},
+        {"cache",no_argument, NULL,0},
         {0,0,0,0}
     };
     int option_index = 0;
     while ((opt = getopt_long(argc, argv, "ftdc:ase:p:",longopts,&option_index)) != -1) {
         switch (opt) {
             case 0:
-                if (strcmp(longopts[option_index].name,"group")==0)
+                if (strcmp(longopts[option_index].name,"cache")==0) {
+                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
+                    group_parsing(x0);
+                    char x1[] = "raw-l1i-cache,raw-l1i-cache-refill";
+                    group_parsing(x1);
+                    char x2[]="raw-l1d-cache,raw-l1d-cache-refill";
+                    group_parsing(x2);
+                    char x3[]="raw-l2d-cache,raw-l2d-cache-refill";
+                    group_parsing(x3);
+                    char x4[]="raw-l3d-cache,raw-l3d-cache-refill";
+                    group_parsing(x4);
+                    cpu_select = 0xff;
+                }
+                else if (strcmp(longopts[option_index].name,"group")==0)
                     group_parsing(optarg);
                 else if (strcmp(longopts[option_index].name,"interval")==0)
                     interval = atoi(optarg);
