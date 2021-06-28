@@ -144,6 +144,9 @@ int perf(int pid=-1) {
     {
         group_index[i+1] = group_index[i] + group_num[i] + 2;
     }
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    long int ms_start = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     unsigned long long data[sample][cpu][group_index[group]];
     for (int k = 0 ; k < sample ; k++)
     {
@@ -176,7 +179,7 @@ int perf(int pid=-1) {
         if (print) {
             struct timeval tp;
             gettimeofday(&tp, NULL);
-            long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+            long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000 - ms_start;
             printf("time %ld ms\n",ms);
         }
         if ((interval * k % 1000) == 0) { // update fd, cpu unplug / plug
