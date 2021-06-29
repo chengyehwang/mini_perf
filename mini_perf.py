@@ -26,6 +26,8 @@ counter = read_file()
 #print(counter)
 data = pd.DataFrame(counter,columns=name)
 
+data = data.diff()
+
 for cpu in range(8):
     cpu = '_cpu%d' % cpu
     for group in range(8):
