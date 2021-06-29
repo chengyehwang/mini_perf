@@ -257,24 +257,42 @@ int main(int argc, char* argv[]) {
         {"group",required_argument, NULL,0},
         {"interval",required_argument, NULL,0},
         {"duration",required_argument, NULL,0},
-        {"cache",no_argument, NULL,0},
+        {"cache6",no_argument, NULL,0},
+        {"cache4",no_argument, NULL,0},
+        {"cache3",no_argument, NULL,0},
         {0,0,0,0}
     };
     int option_index = 0;
     while ((opt = getopt_long(argc, argv, "ftdc:asue:p:",longopts,&option_index)) != -1) {
         switch (opt) {
             case 0:
-                if (strcmp(longopts[option_index].name,"cache")==0) {
+                if (strcmp(longopts[option_index].name,"cache3")==0) {
                     char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
                     group_parsing(x0);
                     char x1[] = "raw-l1i-cache,raw-l1i-cache-refill";
                     group_parsing(x1);
-                    char x2[]="raw-l1d-cache,raw-l1d-cache-refill";
+                    char x2[] = "raw-l1d-cache,raw-l1d-cache-refill";
                     group_parsing(x2);
-                    char x3[]="raw-l2d-cache,raw-l2d-cache-refill";
+                    char x3[] = "raw-l2d-cache,raw-l2d-cache-refill";
                     group_parsing(x3);
-                    char x4[]="raw-l3d-cache,raw-l3d-cache-refill";
+                    char x4[] = "raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x4);
+                    cpu_select = 0xff;
+                }
+                else if (strcmp(longopts[option_index].name,"cache6")==0) {
+                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
+                    group_parsing(x0);
+                    char x1[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
+                    group_parsing(x1);
+                    cpu_select = 0xff;
+                }
+                else if (strcmp(longopts[option_index].name,"cache4")==0) {
+                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
+                    group_parsing(x0);
+                    char x1[] = "raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
+                    group_parsing(x1);
+                    char x2[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
+                    group_parsing(x2);
                     cpu_select = 0xff;
                 }
                 else if (strcmp(longopts[option_index].name,"group")==0)
