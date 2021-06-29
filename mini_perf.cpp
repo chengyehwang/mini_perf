@@ -148,6 +148,7 @@ int perf(int pid=-1) {
     gettimeofday(&tp, NULL);
     long int ms_start = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     unsigned long long data[sample][cpu][group_index[group]];
+    memset(data, 0, sizeof(unsigned long long) * sample * cpu * group_index[group]);
     for (int k = 0 ; k < sample ; k++)
     {
         if (child_finish) {
