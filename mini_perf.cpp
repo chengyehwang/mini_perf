@@ -283,7 +283,7 @@ int main(int argc, char* argv[]) {
         {0,0,0,0}
     };
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "ftdc:ase:p:",longopts,&option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "ftdc:asue:p:",longopts,&option_index)) != -1) {
         switch (opt) {
             case 0:
                 if (strcmp(longopts[option_index].name,"cache")==0) {
@@ -314,6 +314,7 @@ int main(int argc, char* argv[]) {
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
             case 'a': cpu_all = true; break;
             case 's': print = true; break;
+            case 'u': user = true; break;
             case 'e': group_parsing(optarg); break;
             case 'p': pids = atoi(optarg); break;
             default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
@@ -350,7 +351,10 @@ int main(int argc, char* argv[]) {
         pid_t pid = fork();
         if (pid > 0) { // parent process
             if (!flow) {
-                perf(pid);
+                if (user)
+                    perf(pid);
+                else
+                    perf();
             }
             int status;
             if (!child_finish)
