@@ -323,6 +323,7 @@ int main(int argc, char* argv[]) {
     // sample data est
     sample = duration * 1000 / interval;
 
+    signal(SIGINT, proc_exit);
     if (strlen(exe_path)>0) {
         signal(SIGCHLD, proc_exit);
         pid_t pid = fork();
