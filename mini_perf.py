@@ -23,4 +23,5 @@ def read_file():
 counter = read_file()
 print(counter)
 data = pd.DataFrame(counter,columns=name)
-print(data) 
+print(data)
+data.to_csv('mini_perf.csv')
