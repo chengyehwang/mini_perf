@@ -69,11 +69,11 @@ for cpu in range(8):
         data[l2_req] = 1 - data[l1_hit]
 
     if l2_req in data.columns and l2_miss in data.columns:
-        data[l2_hit] = data[l2_req] (1 - data[l2_miss])
+        data[l2_hit] = data[l2_req] * (1 - data[l2_miss])
         data[l3_req] = data[l2_req] * data[l2_miss]
 
     if l3_req in data.columns and l3_miss in data.columns:
-        data[l3_hit] = data[l3_req] (1 - data[l3_miss])
+        data[l3_hit] = data[l3_req] * (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
 
 
