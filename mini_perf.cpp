@@ -183,29 +183,6 @@ int perf(int pid=-1) {
             long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000 - ms_start;
             printf("time %ld ms\n",ms);
         }
-        if ((interval * k % 1000) == 0) { // update fd, cpu unplug / plug
-            // register counter
-            for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
-            {
-                for (int group_i = 0 ; group_i < group ; group_i++)
-                {
-                    if (fd[cpu_i][group_i][0] != -1) continue;
-                    int fd_prev = -1;
-                    for (int count_i=0 ; count_i < group_num[group_i] ; count_i++)
-                    {
-                        perf_event_attr& ref = pe[cpu_i][group_i][count_i];
-
-                        fd[cpu_i][group_i][count_i] = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
-                        fd_prev = fd[cpu_i][group_i][0];
-                        if (fd[cpu_i][group_i][count_i] == -1) {
-                            fd[cpu_i][group_i][0] = -1;
-                            break;
-                        }
-
-                    }
-                }
-            }
-        }
     }
 
     // close all file handler
@@ -312,7 +289,7 @@ int main(int argc, char* argv[]) {
             case 't': trace = true; break;
             case 'd': debug = true; break;
             case 'c': cpu_select = strtol(optarg, NULL, 16); break;
-            case 'a': cpu_all = true; break;
+            case 'a': cpu_select = 0xff; break;
             case 's': print = true; break;
             case 'u': user = true; break;
             case 'e': group_parsing(optarg); break;
