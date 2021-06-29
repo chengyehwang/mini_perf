@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import re
+import glob
 name = []
 filename = glob.glob('*mini_perf.head')[0]
 with open(filename, 'r') as f:
@@ -59,7 +60,7 @@ for cpu in range(8):
     l2_req = 'l2-cache-req' + cpu
     l3_req = 'l3-cache-req' + cpu
 
-    if l1i_req in data.columns l1d_req in data.columns and l1i_miss in data.columns and l1d_miss in data.columns:
+    if l1i_req in data.columns and l1d_req in data.columns and l1i_miss in data.columns and l1d_miss in data.columns:
         data[l2_req] = data[l1i_req] * data[l1i_miss] + data[l1d_req] * data[l1d_miss]
         data[l1_hit] = 1 - data[l2_req]
 
@@ -73,5 +74,5 @@ for cpu in range(8):
 
 
 #print(data)
-file_csv = filename.replace('.head','.csv')
-data.to_csv(file_csv)
+file_excel = filename.replace('.head','.xlsx')
+data.to_excel(file_excel)
