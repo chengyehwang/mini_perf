@@ -47,6 +47,8 @@ for cpu in range(8):
         if count_inst in data.columns and count_d in data.columns:
             data[count_d_req] = data[count_d] / data[count_inst]
 
+for cpu in range(8):
+    cpu = '_cpu%d' % cpu
     l1i_miss = 'l1i-cache-miss' + cpu
     l1d_miss = 'l1d-cache-miss' + cpu
     l2_miss = 'l2d-cache-miss' + cpu
@@ -61,16 +63,16 @@ for cpu in range(8):
     l3_req = 'l3-cache-req' + cpu
 
     if l1i_req in data.columns and l1d_req in data.columns and l1i_miss in data.columns and l1d_miss in data.columns:
-        data[l2_req] = data[l1i_req] * data[l1i_miss] + data[l1d_req] * data[l1d_miss]
-        data[l1_hit] = 1 - data[l2_req]
+        data[l1_hit] = 1 - ( data[l1i_req] * data[l1i_miss] + data[l1d_req] * data[l1d_miss] )
+        data[l2_req] = 1 - data[l1_hit]
 
     if l2_req in data.columns and l2_miss in data.columns:
+        data[l2_hit] = data[l2_req] (1 - data[l2_miss])
         data[l3_req] = data[l2_req] * data[l2_miss]
-        data[l2_hit] = data[l2_req] - data[l3_req]
 
     if l3_req in data.columns and l3_miss in data.columns:
+        data[l3_hit] = data[l3_req] (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
-        data[l3_hit] = data[l3_req] - data[dram_hit]
 
 
 #print(data)
