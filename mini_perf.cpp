@@ -22,7 +22,7 @@ bool flow=false;
 bool print=false;
 int user=false;
 int pids=-1;
-int interval = 1; // ms
+int interval = 10; // ms
 int duration = 10; // s
 int sample;
 const int counter_max=6; // max 6 counter per group

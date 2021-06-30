@@ -55,7 +55,7 @@ for cpu in range(8):
         count_cycle = 'raw-cpu-cycles' + group + cpu
         cpi = 'cpi' + cpu
         if count_inst in data.columns and count_cycle in data.columns:
-            data[cpi] = count_cycle / count_inst
+            data[cpi] = data[count_cycle] / data[count_inst]
 
 for cpu in range(8):
     cpu = '_cpu%d' % cpu
@@ -106,7 +106,7 @@ print(table)
 
 from plotly.offline import iplot
 import plotly.express as px
-fig = px.line(table, x='time', y = 'cache_impact', color = 'cpu')
+fig = px.line(table, x='time', y = 'value', color = 'cpu')
 file_image = filename.replace('.head','.png')
 fig.write_image(file_image)
 

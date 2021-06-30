@@ -6,6 +6,12 @@ export NDK_PROJECT_PATH := $(PWD)
 build:
 	./android-ndk-r21/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
+local:
+	adb push mini_perf.exe /data/local/tmp
+	adb push sleep.sh /data/local/tmp
+	adb shell /data/local/tmp/mini_perf.exe --cache3 -u /data/local/tmp/sleep.sh
+	adb pull /data/local/tmp/mini_perf.head
+	adb pull /data/local/tmp/mini_perf.data
 run:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
 ndk:
