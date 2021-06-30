@@ -132,7 +132,7 @@ for cpu in range(8):
     w3 = get_column_letter(column+1) + '4'
     w4 = get_column_letter(column+1) + '5'
     w5 = get_column_letter(column+1) + '6'
-    w15 = get_column_letter(column+1) + '16'
+    w21 = get_column_letter(column+1) + '22'
     workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
     workspace[w2] = 10
@@ -153,6 +153,7 @@ for cpu in range(8):
             workspace[impact] = "cache_impact" + cpu
         else:
             workspace[impact] = "= %s * %s + %s * %s + %s * %s + %s * %s"%(l1,w1,l2,w2,l3,w3,l4,w4)
+        workspace[cpi] = "=pmu!" + get_column_letter(CPI) + str(row)
         workspace[l1] = "=pmu!" + get_column_letter(L1) + str(row)
         workspace[l2] = "=pmu!" + get_column_letter(L2) + str(row)
         workspace[l3] = "=pmu!" + get_column_letter(L3) + str(row)
@@ -164,7 +165,7 @@ for cpu in range(8):
     chart.x_axis.title = 'Time'
     xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
     values = Reference(workspace, min_col = column, min_row = 2, max_row = row_num + 1)
-    series = Series(values, xvalues)
+    series = Series(values, xvalues, title='')
     chart.series.append(series)
     workspace.add_chart(chart, w5)
 
@@ -175,7 +176,7 @@ for cpu in range(8):
     values = Reference(workspace, min_col = column+2, min_row = 2, max_row = row_num + 1)
     series = Series(values, xvalues)
     chart.series.append(series)
-    workspace.add_chart(chart, w15)
+    workspace.add_chart(chart, w21)
 
     column += 10
 
