@@ -26,6 +26,9 @@ counter = read_file()
 #print(counter)
 data = pd.DataFrame(counter,columns=name)
 
+data['time'] = data['time'] / 1000000.0
+data = data.set_index('time')
+
 data = data.diff()
 
 for cpu in range(8):
