@@ -92,6 +92,7 @@ file_excel = filename.replace('.head','.xlsx')
 data.to_excel(file_excel, sheet_name = 'pmu')
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
+from openpyxl.chart import ScatterChart, Reference, Series
 workbook = load_workbook(file_excel)
 workspace = workbook.create_sheet(title = 'impact')
 
@@ -120,18 +121,23 @@ for cpu in range(8):
         if dram_hit == data.columns[i]:
             L4 = i + 2
 
+    # penalty columns
     w0 = get_column_letter(column+1) + '1'
     w1 = get_column_letter(column+1) + '2'
     w2 = get_column_letter(column+1) + '3'
     w3 = get_column_letter(column+1) + '4'
     w4 = get_column_letter(column+1) + '5'
-    workspace[w0] = 'penalty'
+    w5 = get_column_letter(column+1) + '5'
+    workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
     workspace[w2] = 10
     workspace[w3] = 20
     workspace[w4] = 100
 
-    for row in range(1, len(data.index) + 2):
+    row_num = len(data.index) + 1
+
+    # hit
+    for row in range(1, row_num + 1):
         impact = get_column_letter(column) + str(row)
         l1 = get_column_letter(column+2) + str(row)
         l2 = get_column_letter(column+3) + str(row)
@@ -146,7 +152,19 @@ for cpu in range(8):
         workspace[l3] = "=pmu!" + get_column_letter(L3) + str(row)
         workspace[l4] = "=pmu!" + get_column_letter(L4) + str(row)
 
+    # chart
+    chart = ScatterChart()
+    chart.title = 'Cache Impact' + cpu
+    chart.x_axis.title = 'Time'
+    xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
+    values = Reference(workspace, min_col = column, min_row = 1, max_row = row_num + 1)
+    series = Series(values, xvalues, title_from_data=True)
+    chart.series.append(series)
+    workspace.add_chart(chart, w5)
+
     column += 6
+
+    
 
 workbook.save(file_excel)
 
