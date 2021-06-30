@@ -141,10 +141,10 @@ for cpu in range(8):
     workspace[w3] = 20
     workspace[w4] = 100
 
-    workspace[w1].fill = PatternFill(start_codor="FFEE08", end_codor="FFEE08", fill_type = "solid")
-    workspace[w2].fill = PatternFill(start_codor="FFEE08", end_codor="FFEE08", fill_type = "solid")
-    workspace[w3].fill = PatternFill(start_codor="FFEE08", end_codor="FFEE08", fill_type = "solid")
-    workspace[w4].fill = PatternFill(start_codor="FFEE08", end_codor="FFEE08", fill_type = "solid")
+    workspace[w1].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
+    workspace[w2].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
+    workspace[w3].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
+    workspace[w4].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
 
     row_num = len(data.index) + 1
 
