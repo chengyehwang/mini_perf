@@ -127,7 +127,7 @@ for cpu in range(8):
     w2 = get_column_letter(column+1) + '3'
     w3 = get_column_letter(column+1) + '4'
     w4 = get_column_letter(column+1) + '5'
-    w5 = get_column_letter(column+1) + '5'
+    w5 = get_column_letter(column+1) + '6'
     workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
     workspace[w2] = 10
@@ -162,7 +162,7 @@ for cpu in range(8):
     chart.series.append(series)
     workspace.add_chart(chart, w5)
 
-    column += 6
+    column += 10
 
     
 
