@@ -66,7 +66,7 @@ for cpu in range(8):
     l1_hit = 'l1-cache-hit' + cpu
     l2_hit = 'l2-cache-hit' + cpu
     l3_hit = 'l3-cache-hit' + cpu
-    dram_hit = 'dram-cache-hit' + cpu
+    dram_hit = 'dram-hit' + cpu
     l1i_req = 'l1i-cache-req' + cpu
     l1d_req = 'l1d-cache-req' + cpu
     l2_req = 'l2-cache-req' + cpu
@@ -110,7 +110,7 @@ for cpu in range(8):
     l1_hit = 'l1-cache-hit' + cpu
     l2_hit = 'l2-cache-hit' + cpu
     l3_hit = 'l3-cache-hit' + cpu
-    dram_hit = 'dram-cache-hit' + cpu
+    dram_hit = 'dram-hit' + cpu
     for i in range(len(data.columns)): # index as first column = 1
         if cpi == data.columns[i]:
             CPI = i + 2
