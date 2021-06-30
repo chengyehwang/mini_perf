@@ -52,6 +52,11 @@ for cpu in range(8):
         if count_inst in data.columns and count_d in data.columns:
             data[count_d_req] = data[count_d] / data[count_inst]
 
+        count_cycle = 'raw-cpu-cycles' + group + cpu
+        cpi = 'cpi' + cpu
+        if count_inst in data.columns and count_cycle in data.columns:
+            data[cpi] = count_cycle / count_inst
+
 for cpu in range(8):
     cpu = '_cpu%d' % cpu
     l1i_miss = 'l1i-cache-miss' + cpu
@@ -89,10 +94,13 @@ data.to_excel(file_excel)
 table = []
 for cpu in range(8):
     cpu = 'cpu%d' % cpu
-    cache_impact = 'cache_impact_' + cpu
-    cache_impact = data[cache_impact]
-    for index,value in cache_impact.items():
-        table.append({'time': index, 'cpu': cpu, 'cache_impact': value})
+    cache_impact_name = 'cache_impact_' + cpu
+    cpi_name = 'cpi_' + cpu
+    for index, row in data.iterrows():
+        cache_impact = row[cache_impact_name]
+        cpi = row[cpi_name]
+        table.append({'time': index, 'cpu': cpu + '_cache_impact', 'value': cache_impact})
+        table.append({'time': index, 'cpu': cpu + '_cpi', 'value': cpi})
 table = pd.DataFrame(table)
 print(table)
 
