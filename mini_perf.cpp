@@ -281,27 +281,29 @@ int main(int argc, char* argv[]) {
         switch (opt) {
             case 0:
                 if (strcmp(longopts[option_index].name,"cache3")==0) {
-                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
+                    char x0[] = "raw-inst-retired,raw-cpu-cycles";
                     group_parsing(x0);
-                    char x1[] = "raw-l1i-cache,raw-l1i-cache-refill";
+                    char x1[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
                     group_parsing(x1);
-                    char x2[] = "raw-l1d-cache,raw-l1d-cache-refill";
+                    char x2[] = "raw-l1i-cache,raw-l1i-cache-refill";
                     group_parsing(x2);
-                    char x3[] = "raw-l2d-cache,raw-l2d-cache-refill";
+                    char x3[] = "raw-l1d-cache,raw-l1d-cache-refill";
                     group_parsing(x3);
-                    char x4[] = "raw-l3d-cache,raw-l3d-cache-refill";
+                    char x4[] = "raw-l2d-cache,raw-l2d-cache-refill";
                     group_parsing(x4);
+                    char x5[] = "raw-l3d-cache,raw-l3d-cache-refill";
+                    group_parsing(x5);
                     cpu_select = 0xff;
                 }
                 else if (strcmp(longopts[option_index].name,"cache6")==0) {
-                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
+                    char x0[] = "raw-inst-retired,raw-cpu-cycles,raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
                     group_parsing(x0);
                     char x1[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x1);
                     cpu_select = 0xff;
                 }
                 else if (strcmp(longopts[option_index].name,"cache4")==0) {
-                    char x0[] = "raw-inst-retired,raw-l1i-cache,raw-l1d-cache";
+                    char x0[] = "raw-inst-retired,raw-cpu-cycles,raw-l1i-cache,raw-l1d-cache";
                     group_parsing(x0);
                     char x1[] = "raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
                     group_parsing(x1);
