@@ -99,16 +99,21 @@ for cpu in range(8):
     for index, row in data.iterrows():
         if cache_impact_name in row:
             cache_impact = row[cache_impact_name]
-            table.append({'time': index, 'cpu': cpu + '_cache_impact', 'value': cache_impact})
+            table.append({'time': index, 'cpu': cpu, 'cache_impact': cache_impact})
         if cpi_name in row:
             cpi = row[cpi_name]
-            table.append({'time': index, 'cpu': cpu + '_cpi', 'value': cpi})
+            table.append({'time': index, 'cpu': cpu, 'cpi': cpi})
 table = pd.DataFrame(table)
 print(table)
 
 from plotly.offline import iplot
+from plotly.subplots import make_subplots
 import plotly.express as px
-fig = px.line(table, x='time', y = 'value', color = 'cpu')
-file_image = filename.replace('.head','.png')
-fig.write_image(file_image)
+fig1 = px.line(table, x='time', y = 'cpi', color = 'cpu')
+fig2 = px.line(table, x='time', y = 'cache_impact', color = 'cpu')
+
+file_image_1 = filename.replace('.head','_cpi.png')
+file_image_2 = filename.replace('.head','_cache.png')
+fig1.write_image(file_image_1)
+fig2.write_image(file_image_2)
 
