@@ -97,10 +97,12 @@ for cpu in range(8):
     cache_impact_name = 'cache_impact_' + cpu
     cpi_name = 'cpi_' + cpu
     for index, row in data.iterrows():
-        cache_impact = row[cache_impact_name]
-        cpi = row[cpi_name]
-        table.append({'time': index, 'cpu': cpu + '_cache_impact', 'value': cache_impact})
-        table.append({'time': index, 'cpu': cpu + '_cpi', 'value': cpi})
+        if cache_impact_name in row:
+            cache_impact = row[cache_impact_name]
+            table.append({'time': index, 'cpu': cpu + '_cache_impact', 'value': cache_impact})
+        if cpi_name in row:
+            cpi = row[cpi_name]
+            table.append({'time': index, 'cpu': cpu + '_cpi', 'value': cpi})
 table = pd.DataFrame(table)
 print(table)
 
