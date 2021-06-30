@@ -29,6 +29,7 @@ const int counter_max=6; // max 6 counter per group
 const int group_max=8; // max 8 group
 const int cpu_max=8;
 int group=0;
+int group_index[group_max+1];
 int cpu = 0;
 int cpu_id[cpu_max]; // 8 core
 char group_name[group_max][counter_max][30] = {0};
@@ -54,6 +55,16 @@ void proc_exit(int) {
     child_finish = true;
 }
 
+unsigned data_group(unsigned sample_i, unsigned cpu_i, unsigned group_i) {
+    unsigned r1 = sample_i * (1 + cpu * group_index[group]);
+    unsigned r2 = 1 + cpu_i * group_index[group];
+    unsigned r3 = group_index[group_i];
+    return (r1 + r2 + r3);
+}
+unsigned data_time(unsigned sample_i) {
+    unsigned r1 = sample_i * (1 + cpu * group_index[group]);
+    return (r1);
+}
 int perf(int pid=-1) {
     if (pid != -1)
         printf("profile pid %d\n",pid);
@@ -138,7 +149,6 @@ int perf(int pid=-1) {
         }
     }
     // record counters
-    int group_index[group+1];
     group_index[0] = 0;
     for (int i=0 ; i < group ; i++)
     {
@@ -146,9 +156,10 @@ int perf(int pid=-1) {
     }
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    long int ms_start = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-    unsigned long long data[sample][cpu][group_index[group]];
-    memset(data, 0, sizeof(unsigned long long) * sample * cpu * group_index[group]);
+    unsigned long long us_start = tp.tv_sec * 1000000 + tp.tv_usec;
+    unsigned data_total = sample * (1 + cpu * group_index[group]);
+    unsigned long long data[data_total];
+    memset(data, 0, sizeof(unsigned long long) * data_total);
     for (int k = 0 ; k < sample ; k++)
     {
         if (child_finish) {
@@ -170,19 +181,20 @@ int perf(int pid=-1) {
             {
 
                 if (fd[i][j][0] == -1) continue;
-                int re = read(fd[i][j][0], &(data[k][i][group_index[j]]), (group_num[j]+2) * sizeof(unsigned long long));
+                int re = read(fd[i][j][0], data+data_group(k,i,j), (group_num[j]+2) * sizeof(unsigned long long));
                 if (re == -1) {fd[i][j][0] = -1;} // read err
                 if (print) {
                     for(int m = 0 ; m < group_num[j] ; m++) {
-                        printf(" %10lld %20s_g%d_cpu%d #\n",data[k][i][group_index[j]+2+m], group_name[j][m],j,i);
+                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(k,i,j)+2+m], group_name[j][m],j,i);
                     }
                 }
             }
+        struct timeval tp;
+        gettimeofday(&tp, NULL);
+        unsigned long long us = tp.tv_sec * 1000000 + tp.tv_usec - us_start;
+        data[data_time(k)] = us;
         if (print) {
-            struct timeval tp;
-            gettimeofday(&tp, NULL);
-            long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000 - ms_start;
-            printf("time %ld ms\n",ms);
+            printf("time %lld us\n",us);
         }
     }
 
@@ -205,7 +217,8 @@ int perf(int pid=-1) {
 #else
     FILE *writer = fopen("/data/local/tmp/mini_perf.data", "wb");
 #endif
-    fwrite(data, sizeof(unsigned long long),sample * cpu * group_index[group], writer);
+    data_total = sample * (1 + cpu * group_index[group]);
+    fwrite(data, sizeof(unsigned long long), data_total, writer);
     fclose(writer);
 
     // wirte head to file
@@ -214,6 +227,7 @@ int perf(int pid=-1) {
 #else
     writer = fopen("/data/local/tmp/mini_perf.head", "w");
 #endif
+    fprintf(writer, "count: time\n");
     for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
     {
         char cpu_name[10]="";
