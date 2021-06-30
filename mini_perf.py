@@ -104,11 +104,15 @@ column = 2
 
 for cpu in range(8):
     cpu = '_cpu%d' % cpu
+    cpi = 'cpi' + cpu
     l1_hit = 'l1-cache-hit' + cpu
     l2_hit = 'l2-cache-hit' + cpu
     l3_hit = 'l3-cache-hit' + cpu
     dram_hit = 'dram-cache-hit' + cpu
     for i in range(len(data.columns)): # index as first column = 1
+        if cpi == data.columns[i]:
+            CPI = i + 2
+
         if l1_hit == data.columns[i]:
             L1 = i + 2
 
@@ -128,6 +132,7 @@ for cpu in range(8):
     w3 = get_column_letter(column+1) + '4'
     w4 = get_column_letter(column+1) + '5'
     w5 = get_column_letter(column+1) + '6'
+    w15 = get_column_letter(column+1) + '16'
     workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
     workspace[w2] = 10
@@ -139,10 +144,11 @@ for cpu in range(8):
     # hit
     for row in range(1, row_num + 1):
         impact = get_column_letter(column) + str(row)
-        l1 = get_column_letter(column+2) + str(row)
-        l2 = get_column_letter(column+3) + str(row)
-        l3 = get_column_letter(column+4) + str(row)
-        l4 = get_column_letter(column+5) + str(row)
+        cpi = get_column_letter(column+2) + str(row)
+        l1 = get_column_letter(column+3) + str(row)
+        l2 = get_column_letter(column+4) + str(row)
+        l3 = get_column_letter(column+5) + str(row)
+        l4 = get_column_letter(column+6) + str(row)
         if row ==1:
             workspace[impact] = "cache_impact" + cpu
         else:
@@ -157,10 +163,19 @@ for cpu in range(8):
     chart.title = 'Cache Impact' + cpu
     chart.x_axis.title = 'Time'
     xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
-    values = Reference(workspace, min_col = column, min_row = 1, max_row = row_num + 1)
-    series = Series(values, xvalues, title_from_data=True)
+    values = Reference(workspace, min_col = column, min_row = 2, max_row = row_num + 1)
+    series = Series(values, xvalues)
     chart.series.append(series)
     workspace.add_chart(chart, w5)
+
+    chart = ScatterChart()
+    chart.title = 'CPI' + cpu
+    chart.x_axis.title = 'Time'
+    xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
+    values = Reference(workspace, min_col = column+2, min_row = 2, max_row = row_num + 1)
+    series = Series(values, xvalues)
+    chart.series.append(series)
+    workspace.add_chart(chart, w15)
 
     column += 10
 
