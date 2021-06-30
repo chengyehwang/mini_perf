@@ -97,7 +97,7 @@ workspace = workbook.create_sheet(title = 'impact')
 
 if True: # time
     for row in range(1, len(data.index) + 2):
-        workspace['A' + str(row)] = '=pmu' + 'A' + str(row)
+        workspace['A' + str(row)] = '=pmu!' + 'A' + str(row)
 
 column = 2
 
