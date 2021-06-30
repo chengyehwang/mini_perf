@@ -76,7 +76,26 @@ for cpu in range(8):
         data[l3_hit] = data[l3_req] * (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
 
+    impact = 'cache_impact' + cpu
+    data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
 
 #print(data)
 file_excel = filename.replace('.head','.xlsx')
 data.to_excel(file_excel)
+
+table = []
+for cpu in range(8):
+    cpu = 'cpu%d' % cpu
+    cache_impact = 'cache_impact_' + cpu
+    cache_impact = data[cache_impact]
+    for index,value in cache_impact.items():
+        table.append({'time': index, 'cpu': cpu, 'cache_impact': value})
+table = pd.DataFrame(table)
+print(table)
+
+from plotly.offline import iplot
+import plotly.express as px
+fig = px.line(table, x='time', y = 'cache_impact', color = 'cpu')
+file_image = filename.replace('.head','.png')
+fig.write_image(file_image)
+
