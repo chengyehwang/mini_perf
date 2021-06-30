@@ -31,8 +31,29 @@ data = data.set_index('time')
 
 data = data.diff()
 
-for cpu in range(8):
-    cpu = '_cpu%d' % cpu
+cpu_list = ['0','1','2','3','4','5','6','7']
+cpu_group = {'L': ['0','1','2','3'], 'B': ['4','5','6','7']}
+
+count_list = set()
+for i in data.columns:
+    m = re.search('^(.*)_cpu\d$',i)
+    if m:
+        count_list.add(m[1])
+
+for count in count_list:
+    for group in cpu_group:
+        data[count + '_cpu' + group] = 0
+        for cpu in cpu_group[group]:
+            data[count + '_cpu' + group] += data[count + '_cpu' + cpu]
+
+for group in cpu_group:
+    cpu_list.append(group)
+
+
+
+
+for cpu in cpu_list:
+    cpu = '_cpu' + cpu
     for group in range(8):
         group = '_g%d' % group
         for cache in ['l1i', 'l1d', 'l2d', 'l3d']:
@@ -57,8 +78,8 @@ for cpu in range(8):
         if count_inst in data.columns and count_cycle in data.columns:
             data[cpi] = data[count_cycle] / data[count_inst]
 
-for cpu in range(8):
-    cpu = '_cpu%d' % cpu
+for cpu in cpu_list:
+    cpu = '_cpu' + cpu
     l1i_miss = 'l1i-cache-miss' + cpu
     l1d_miss = 'l1d-cache-miss' + cpu
     l2_miss = 'l2d-cache-miss' + cpu
@@ -104,8 +125,8 @@ if True: # time
 
 column = 2
 
-for cpu in range(8):
-    cpu = '_cpu%d' % cpu
+for cpu in cpu_list:
+    cpu = '_cpu' + cpu
     cpi = 'cpi' + cpu
     l1_hit = 'l1-cache-hit' + cpu
     l2_hit = 'l2-cache-hit' + cpu
@@ -194,10 +215,10 @@ for cpu in range(8):
 workbook.save(file_excel)
 
 table = []
-for cpu in range(8):
-    cpu = 'cpu%d' % cpu
-    cache_impact_name = 'cache_impact_' + cpu
-    cpi_name = 'cpi_' + cpu
+for cpu in cpu_list:
+    cpu = '_cpu' + cpu
+    cache_impact_name = 'cache_impact' + cpu
+    cpi_name = 'cpi' + cpu
     for index, row in data.iterrows():
         if cache_impact_name in row:
             cache_impact = row[cache_impact_name]
