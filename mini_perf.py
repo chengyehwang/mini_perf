@@ -93,6 +93,8 @@ data.to_excel(file_excel, sheet_name = 'pmu')
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.chart import ScatterChart, Reference, Series
+from openpyxl.styles import PatternFill
+
 workbook = load_workbook(file_excel)
 workspace = workbook.create_sheet(title = 'impact')
 
@@ -138,6 +140,11 @@ for cpu in range(8):
     workspace[w2] = 10
     workspace[w3] = 20
     workspace[w4] = 100
+
+    workspace[w1].fill = PatternFill(bgColor="FFC7CE", fill_type = "solid")
+    workspace[w2].fill = PatternFill(bgColor="FFC7CE", fill_type = "solid")
+    workspace[w3].fill = PatternFill(bgColor="FFC7CE", fill_type = "solid")
+    workspace[w4].fill = PatternFill(bgColor="FFC7CE", fill_type = "solid")
 
     row_num = len(data.index) + 1
 
