@@ -89,7 +89,66 @@ for cpu in range(8):
 
 #print(data)
 file_excel = filename.replace('.head','.xlsx')
-data.to_excel(file_excel)
+data.to_excel(file_excel, sheet_name = 'pmu')
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+workbook = load_workbook(file_excel)
+workspace = workbook.create_sheet(title = 'impact')
+
+if True: # time
+    for row in range(1, len(data.index) + 2):
+        workspace['A' + str(row)] = '=pmu' + 'A' + str(row)
+
+column = 2
+
+for cpu in range(8):
+    cpu = '_cpu%d' % cpu
+    l1_hit = 'l1-cache-hit' + cpu
+    l2_hit = 'l2-cache-hit' + cpu
+    l3_hit = 'l3-cache-hit' + cpu
+    dram_hit = 'dram-cache-hit' + cpu
+    for i in range(len(data.columns)): # index as first column = 1
+        if l1_hit == data.columns[i]:
+            L1 = i + 2
+
+        if l2_hit == data.columns[i]:
+            L2 = i + 2
+
+        if l3_hit == data.columns[i]:
+            L3 = i + 2
+
+        if dram_hit == data.columns[i]:
+            L4 = i + 2
+
+    w0 = get_column_letter(column+1) + '1'
+    w1 = get_column_letter(column+1) + '2'
+    w2 = get_column_letter(column+1) + '3'
+    w3 = get_column_letter(column+1) + '4'
+    w4 = get_column_letter(column+1) + '5'
+    workspace[w0] = 'penalty'
+    workspace[w1] = 0
+    workspace[w2] = 10
+    workspace[w3] = 20
+    workspace[w4] = 100
+
+    for row in range(1, len(data.index) + 2):
+        impact = get_column_letter(column) + str(row)
+        l1 = get_column_letter(column+2) + str(row)
+        l2 = get_column_letter(column+3) + str(row)
+        l3 = get_column_letter(column+4) + str(row)
+        l4 = get_column_letter(column+5) + str(row)
+        if row ==1:
+            workspace[impact] = "cache_impact" + cpu
+        else:
+            workspace[impact] = "= %s * %s + %s * %s + %s * %s + %s * %s"%(l1,w1,l2,w2,l3,w3,l4,w4)
+        workspace[l1] = "=pmu!" + get_column_letter(L1) + str(row)
+        workspace[l2] = "=pmu!" + get_column_letter(L2) + str(row)
+        workspace[l3] = "=pmu!" + get_column_letter(L3) + str(row)
+        workspace[l4] = "=pmu!" + get_column_letter(L4) + str(row)
+
+    column += 6
+
+workbook.save(file_excel)
 
 table = []
 for cpu in range(8):
@@ -99,21 +158,18 @@ for cpu in range(8):
     for index, row in data.iterrows():
         if cache_impact_name in row:
             cache_impact = row[cache_impact_name]
-            table.append({'time': index, 'cpu': cpu, 'cache_impact': cache_impact})
+            table.append({'time': index, 'cpu': cpu, 'kpi': 'cache_impact', 'value': cache_impact})
         if cpi_name in row:
             cpi = row[cpi_name]
-            table.append({'time': index, 'cpu': cpu, 'cpi': cpi})
+            table.append({'time': index, 'cpu': cpu, 'kpi': 'cpi', 'value': cpi})
 table = pd.DataFrame(table)
 print(table)
 
 from plotly.offline import iplot
 from plotly.subplots import make_subplots
 import plotly.express as px
-fig1 = px.line(table, x='time', y = 'cpi', color = 'cpu')
-fig2 = px.line(table, x='time', y = 'cache_impact', color = 'cpu')
+fig = px.line(table, x='time', y = 'value', color = 'cpu', facet_row = 'kpi')
 
-file_image_1 = filename.replace('.head','_cpi.png')
-file_image_2 = filename.replace('.head','_cache.png')
-fig1.write_image(file_image_1)
-fig2.write_image(file_image_2)
+file_image = filename.replace('.head','.png')
+fig.write_image(file_image)
 
