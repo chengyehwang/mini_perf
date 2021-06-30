@@ -165,8 +165,9 @@ for cpu in range(8):
     chart.x_axis.title = 'Time'
     xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
     values = Reference(workspace, min_col = column, min_row = 2, max_row = row_num + 1)
-    series = Series(values, xvalues, title='')
+    series = Series(values, xvalues)
     chart.series.append(series)
+    chart.legend = None
     workspace.add_chart(chart, w5)
 
     chart = ScatterChart()
@@ -176,6 +177,7 @@ for cpu in range(8):
     values = Reference(workspace, min_col = column+2, min_row = 2, max_row = row_num + 1)
     series = Series(values, xvalues)
     chart.series.append(series)
+    chart.legend = None
     workspace.add_chart(chart, w21)
 
     column += 10
