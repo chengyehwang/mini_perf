@@ -28,6 +28,7 @@ void	nano(char *s, uint64 n);
 uint64	now(void);
 void	ptime(uint64 n);
 void	rusage(void);
+void    lmbench_usage(int argc, char *argv[], char* usage);
 void	save_n(uint64);
 void	settime(uint64 usecs);
 void	start(struct timeval *tv);
