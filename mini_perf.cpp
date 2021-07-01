@@ -160,39 +160,39 @@ int perf(int pid=-1) {
     unsigned data_total = sample * (1 + cpu * group_index[group]);
     unsigned long long data[data_total];
     memset(data, 0, sizeof(unsigned long long) * data_total);
-    for (int k = 0 ; k < sample ; k++)
+    for (int sample_i = 0 ; sample_i < sample ; sample_i++)
     {
         if (child_finish) {
-            sample = k;
+            sample = sample_i;
             break;
         }
         usleep(interval * 1000);
         if(debug) {
-            printf("finish read sample %d / %d\n",k,sample);
+            printf("finish read sample %d / %d\n",sample_i,sample);
         }
-        int ret = trace_counter("pmu_index", k);
+        int ret = trace_counter("pmu_index", sample_i);
         if (ret < 0)
         {
-            k = -1;
+            sample_i = -1;
             continue;
         }
-        for (int i = 0 ; i < cpu ; i++)
-            for (int j = 0 ; j < group ; j++)
+        for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
+            for (int group_i = 0 ; group_i < group ; group_i++)
             {
 
-                if (fd[i][j][0] == -1) continue;
-                int re = read(fd[i][j][0], data+data_group(k,i,j), (group_num[j]+2) * sizeof(unsigned long long));
-                if (re == -1) {fd[i][j][0] = -1;} // read err
+                if (fd[cpu_i][group_i][0] == -1) continue;
+                int re = read(fd[cpu_i][group_i][0], data+data_group(sample_i,cpu_i,group_i), (group_num[group_i]+2) * sizeof(unsigned long long));
+                if (re == -1) {fd[cpu_i][group_i][0] = -1;} // read err
                 if (print) {
-                    for(int m = 0 ; m < group_num[j] ; m++) {
-                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(k,i,j)+2+m], group_name[j][m],j,i);
+                    for(int m = 0 ; m < group_num[group_i] ; m++) {
+                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+2+m], group_name[group_i][m],group_i,cpu_i);
                     }
                 }
             }
         struct timeval tp;
         gettimeofday(&tp, NULL);
         unsigned long long us = tp.tv_sec * 1000000 + tp.tv_usec - us_start;
-        data[data_time(k)] = us;
+        data[data_time(sample_i)] = us;
         if (print) {
             printf("time %lld us\n",us);
         }
