@@ -263,9 +263,9 @@ line_initialize(void* cookie)
 	fprintf(stdout, "npages %ld\n", state->npages);
 
 	for (int i = 0 ; i < nlines ; i++)
-	    fprintf(stdout, "line data %04x\n",lines[i]);
+	    fprintf(stdout, "line data %04lx\n",lines[i]);
 	for (int i = 0 ; i < npages ; i++)
-	    fprintf(stdout, "page data %04x\n",pages[i]);
+	    fprintf(stdout, "page data %04lx\n",pages[i]);
 	}
 
 	if (state->addr == NULL || state->lines == NULL || state->pages == NULL) {

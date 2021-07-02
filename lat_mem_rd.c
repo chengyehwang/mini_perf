@@ -125,7 +125,7 @@ loads(size_t len, size_t range, size_t stride,
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
 	double latency = result / (repeat*100) * 1000;
-	fprintf(stderr, "range: %9d, div: %7d, count: %10d, time: %2.3f ns\n", range, div, repeat*100, latency);
+	fprintf(stderr, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
 
 	if (latency > 100) {
 	scale = 100;
