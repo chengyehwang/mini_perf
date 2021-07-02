@@ -66,7 +66,7 @@ main(int ac, char **av)
 			      warmup, repetitions);
 		}
     } else if (optind == ac - 1) {
-		fprintf(stderr, "\"stride=%lu\n", STRIDE);
+		fprintf(stdout, "\"stride=%lu\n", STRIDE);
 		for (range = LOWER; range <= len; range = step(range)) {
 			loads(len, range, STRIDE, parallel, 
 			      warmup, repetitions);
@@ -74,12 +74,12 @@ main(int ac, char **av)
 	} else {
 		for (i = optind + 1; i < ac; ++i) {
 			stride = bytes(av[i]);
-			fprintf(stderr, "\"stride=%zu\n", stride);
+			fprintf(stdout, "\"stride=%zu\n", stride);
 			for (range = LOWER; range <= len; range = step(range)) {
 				loads(len, range, stride, parallel, 
 				      warmup, repetitions);
 			}
-			fprintf(stderr, "\n");
+			fprintf(stdout, "\n");
 		}
 	}
 	return(0);
@@ -134,7 +134,7 @@ loads(size_t len, size_t range, size_t stride,
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
 	double latency = result / (repeat*100) * 1000;
-	fprintf(stderr, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
+	fprintf(stdout, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
 
 	if (latency > 100) {
 	scale = 100;
