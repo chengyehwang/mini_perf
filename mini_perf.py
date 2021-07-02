@@ -49,7 +49,12 @@ for count in count_list:
 for group in cpu_group:
     cpu_list.append(group)
 
+if False:
+    print(data.columns)
 
+    for index, row in data.iterrows():
+        for column in row.keys():
+            print(column, row[column])
 
 
 for cpu in cpu_list:
@@ -63,11 +68,18 @@ for cpu in cpu_list:
             if count_refill in data.columns and count_total in data.columns:
                 data[count_miss] = data[count_refill] / data[count_total]
 
+        count_time = 'time' + group + cpu
+        count_mips = 'mips' + cpu
+
         count_inst = 'raw-inst-retired' + group + cpu
         count_i = 'raw-l1i-cache' + group + cpu
         count_d = 'raw-l1d-cache' + group + cpu
         count_i_req = 'l1i-cache-req' + cpu
         count_d_req = 'l1d-cache-req' + cpu
+
+        if count_time in data.columns and count_inst in data.columns:
+            data[count_mips] = data[count_inst] / data[count_time]
+
         if count_inst in data.columns and count_i in data.columns:
             data[count_i_req] = data[count_i] / data[count_inst]
         if count_inst in data.columns and count_d in data.columns:
@@ -128,6 +140,7 @@ column = 2
 for cpu in cpu_list:
     cpu = '_cpu' + cpu
     cpi = 'cpi' + cpu
+    mips = 'mips' + cpu
     l1_hit = 'l1-cache-hit' + cpu
     l2_hit = 'l2-cache-hit' + cpu
     l3_hit = 'l3-cache-hit' + cpu
@@ -135,6 +148,9 @@ for cpu in cpu_list:
     for i in range(len(data.columns)): # index as first column = 1
         if cpi == data.columns[i]:
             CPI = i + 2
+
+        if mips == data.columns[i]:
+            MIPS = i + 2
 
         if l1_hit == data.columns[i]:
             L1 = i + 2
@@ -173,15 +189,17 @@ for cpu in cpu_list:
     for row in range(1, row_num + 1):
         impact = get_column_letter(column) + str(row)
         cpi = get_column_letter(column+2) + str(row)
-        l1 = get_column_letter(column+3) + str(row)
-        l2 = get_column_letter(column+4) + str(row)
-        l3 = get_column_letter(column+5) + str(row)
-        l4 = get_column_letter(column+6) + str(row)
+        mips = get_column_letter(column+3) + str(row)
+        l1 = get_column_letter(column+4) + str(row)
+        l2 = get_column_letter(column+5) + str(row)
+        l3 = get_column_letter(column+6) + str(row)
+        l4 = get_column_letter(column+7) + str(row)
         if row ==1:
             workspace[impact] = "cache_impact" + cpu
         else:
             workspace[impact] = "= %s * %s + %s * %s + %s * %s + %s * %s"%(l1,w1,l2,w2,l3,w3,l4,w4)
         workspace[cpi] = "=pmu!" + get_column_letter(CPI) + str(row)
+        workspace[mips] = "=pmu!" + get_column_letter(MIPS) + str(row)
         workspace[l1] = "=pmu!" + get_column_letter(L1) + str(row)
         workspace[l2] = "=pmu!" + get_column_letter(L2) + str(row)
         workspace[l3] = "=pmu!" + get_column_letter(L3) + str(row)
