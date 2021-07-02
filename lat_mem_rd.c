@@ -20,6 +20,10 @@ size_t	step(size_t k);
 
 int	page = 64;
 
+int fix_range = 0;
+
+int scale = 1;
+
 int
 main(int ac, char **av)
 {
@@ -27,19 +31,20 @@ main(int ac, char **av)
 	int	c;
 	int	parallel = 1;
 	int	warmup = 0;
-	int	repetitions = TRIES;
+	int	repetitions = 100;
 	size_t	len;
 	size_t	range;
 	size_t	stride;
-	char   *usage = "[-P page] [-W <warmup>] [-N <repetitions>] len [stride...]\n";
+	char   *usage = "[-P <page>] [-R <range>] [-N <repetitions>] len [stride...]\n";
 
-	while (( c = getopt(ac, av, "P:W:N:")) != EOF) {
+	while (( c = getopt(ac, av, "P:R:W:N:")) != EOF) {
 		switch(c) {
 		case 'P':
 			page = atoi(optarg);
 			break;
-		case 'W':
-			warmup = atoi(optarg);
+		case 'R':
+			fix_range = atoi(optarg);
+            scale = 10;
 			break;
 		case 'N':
 			repetitions = atoi(optarg);
@@ -55,7 +60,12 @@ main(int ac, char **av)
 
         len = atoi(av[optind]) * 1024 * 1024;
 
-	if (optind == ac - 1) {
+    if (fix_range != 0) {
+		for (int i=0; i<repetitions ; i++) {
+			loads(len, fix_range, STRIDE, parallel, 
+			      warmup, repetitions);
+		}
+    } else if (optind == ac - 1) {
 		fprintf(stderr, "\"stride=%lu\n", STRIDE);
 		for (range = LOWER; range <= len; range = step(range)) {
 			loads(len, range, STRIDE, parallel, 
@@ -96,7 +106,6 @@ benchmark_loads(iter_t iterations, void *cookie)
 	use_pointer((void *)p);
 }
 
-int scale = 1;
 
 void
 loads(size_t len, size_t range, size_t stride, 
@@ -127,11 +136,13 @@ loads(size_t len, size_t range, size_t stride,
 	double latency = result / (repeat*100) * 1000;
 	fprintf(stderr, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
 
+    if (fix_range == 0) { 
 	if (latency > 100) {
 	scale = 100;
 	} else if (latency > 10) {
 	scale = 10;
 	}
+    }
 }
 
 size_t
