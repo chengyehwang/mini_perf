@@ -78,7 +78,7 @@ for cpu in cpu_list:
         count_d_req = 'l1d-cache-req' + cpu
 
         if count_time in data.columns and count_inst in data.columns:
-            data[count_mips] = data[count_inst] / data[count_time]
+            data[count_mips] = data[count_inst] / data[count_time] * 1000
 
         if count_inst in data.columns and count_i in data.columns:
             data[count_i_req] = data[count_i] / data[count_inst]
