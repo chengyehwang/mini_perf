@@ -257,15 +257,15 @@ line_initialize(void* cookie)
 	state->pages = pages;
 	
 	if (0) {
-	fprintf(stderr, "line %ld\n", state->line);
-	fprintf(stderr, "nlines %ld\n", state->nlines);
-	fprintf(stderr, "pagesize %ld\n", state->pagesize);
-	fprintf(stderr, "npages %ld\n", state->npages);
+	fprintf(stdout, "line %ld\n", state->line);
+	fprintf(stdout, "nlines %ld\n", state->nlines);
+	fprintf(stdout, "pagesize %ld\n", state->pagesize);
+	fprintf(stdout, "npages %ld\n", state->npages);
 
 	for (int i = 0 ; i < nlines ; i++)
-	    fprintf(stderr, "line data %04x\n",lines[i]);
+	    fprintf(stdout, "line data %04x\n",lines[i]);
 	for (int i = 0 ; i < npages ; i++)
-	    fprintf(stderr, "page data %04x\n",pages[i]);
+	    fprintf(stdout, "page data %04x\n",pages[i]);
 	}
 
 	if (state->addr == NULL || state->lines == NULL || state->pages == NULL) {

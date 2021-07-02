@@ -18,6 +18,8 @@ void	loads(size_t len, size_t range, size_t stride,
 	      int parallel, int warmup, int repetitions);
 size_t	step(size_t k);
 
+int	page = 64;
+
 int
 main(int ac, char **av)
 {
@@ -26,16 +28,15 @@ main(int ac, char **av)
 	int	parallel = 1;
 	int	warmup = 0;
 	int	repetitions = TRIES;
-        size_t	len;
+	size_t	len;
 	size_t	range;
 	size_t	stride;
-	char   *usage = "[-P <parallelism>] [-W <warmup>] [-N <repetitions>] len [stride...]\n";
+	char   *usage = "[-P page] [-W <warmup>] [-N <repetitions>] len [stride...]\n";
 
 	while (( c = getopt(ac, av, "P:W:N:")) != EOF) {
 		switch(c) {
 		case 'P':
-			parallel = atoi(optarg);
-			if (parallel <= 0) lmbench_usage(ac, av, usage);
+			page = atoi(optarg);
 			break;
 		case 'W':
 			warmup = atoi(optarg);
@@ -95,6 +96,7 @@ benchmark_loads(iter_t iterations, void *cookie)
 	use_pointer((void *)p);
 }
 
+int scale = 1;
 
 void
 loads(size_t len, size_t range, size_t stride, 
@@ -108,10 +110,9 @@ loads(size_t len, size_t range, size_t stride,
 	state.len = range;
 	state.maxlen = len;
 	state.line = stride;
-	state.pagesize = getpagesize();
+	state.pagesize = page;
 
-
-	int repeat= 10000000;
+	int repeat= 10000000 / scale;
 	/*
 	 * Now walk them and time it.
 	 */
@@ -123,8 +124,14 @@ loads(size_t len, size_t range, size_t stride,
 	benchmark_loads(repeat, &state);
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
-	fprintf(stderr, "range: %d, div: %d, count: %d, time: %.3f ns\n", range, div, repeat * 100, result/(repeat*100)*1000);
+	double latency = result / (repeat*100) * 1000;
+	fprintf(stderr, "range: %d, div: %d, count: %d, time: %.3f ns\n", range, div, repeat*100, latency);
 
+	if (latency > 10) {
+	scale = 10;
+	} else if (latency > 100) {
+	scale = 100;
+	}
 }
 
 size_t
