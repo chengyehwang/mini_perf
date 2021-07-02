@@ -112,8 +112,9 @@ loads(size_t len, size_t range, size_t stride,
 	state.maxlen = len;
 	state.line = stride;
 	state.pagesize = getpagesize();
-	count = 100 * (state.len / (state.line * 100) + 1);
+	count = state.len / state.line + 1;
 
+	int repeat= 100000000 / count;
 	/*
 	 * Now walk them and time it.
 	 */
@@ -122,9 +123,9 @@ loads(size_t len, size_t range, size_t stride,
 
 	line_initialize(&state);
 	start(0);
-	benchmark_loads(1, &state);
+	benchmark_loads(repeat, &state);
 	result = stop(0, 0);
-	fprintf(stderr, "%.5f %.3f\n", range / (1024. * 1024.), result);
+	fprintf(stderr, "range: 0x%x count: %d time: %.3f ns\n", range, count, result/repeat/count*1000);
 
 }
 
