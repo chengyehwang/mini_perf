@@ -13,7 +13,7 @@ char	*id = "$Id: s.lat_mem_rd.c 1.13 98/06/30 16:13:49-07:00 lm@lm.bitmover.com 
 
 #include "bench.h"
 #define STRIDE  (512/sizeof(char *))
-#define	LOWER	512
+#define	LOWER	8192
 void	loads(size_t len, size_t range, size_t stride, 
 	      int parallel, int warmup, int repetitions);
 size_t	step(size_t k);
@@ -74,7 +74,7 @@ main(int ac, char **av)
 	return(0);
 }
 
-#define	ONE	p = (char **)*p;
+#define	ONE	p = (char **)*p; /*printf("%x\n",p);*/
 #define	FIVE	ONE ONE ONE ONE ONE
 #define	TEN	FIVE FIVE
 #define	FIFTY	TEN TEN TEN TEN TEN
@@ -110,6 +110,7 @@ loads(size_t len, size_t range, size_t stride,
 	state.line = stride;
 	state.pagesize = getpagesize();
 
+
 	int repeat= 10000000;
 	/*
 	 * Now walk them and time it.
@@ -121,35 +122,19 @@ loads(size_t len, size_t range, size_t stride,
 	start(0);
 	benchmark_loads(repeat, &state);
 	result = stop(0, 0);
-	fprintf(stderr, "range: 0x%x count: %d, time: %.3f ns\n", range, repeat * 100, result/(repeat*100)*1000);
+	int div = state.npages * state.nlines;
+	fprintf(stderr, "range: %d, div: %d, count: %d, time: %.3f ns\n", range, div, repeat * 100, result/(repeat*100)*1000);
 
 }
 
 size_t
 step(size_t k)
 {
-	if (k < 1024) {
-		k = k * 2;
-        } else if (k < 4*1024) {
-		k += 1024;
-        } else if (k < 32*1024) {
-		k += 2048;
-        } else if (k < 64*1024) {
-		k += 4096;
-        } else if (k < 128*1024) {
-		k += 8192;
-        } else if (k < 256*1024) {
-		k += 16384;
-        } else if (k < 512*1024) {
-		k += 32*1024;
-	} else if (k < 4<<20) {
-		k += 512 * 1024;
-	} else if (k < 8<<20) {
-		k += 1<<20;
-	} else if (k < 20<<20) {
-		k += 2<<20;
-	} else {
-		k += 10<<20;
-	}
-	return (k);
+    for (int i = 30 ; i > 5 ; i--)
+    {
+        if (k >= (1<<i)) {
+            return k += 1<<(i-1);
+        }
+    }
+    return k * 2;
 }
