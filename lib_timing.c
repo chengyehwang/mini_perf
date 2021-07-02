@@ -1582,12 +1582,12 @@ touch(char *buf, int nbytes)
 	}
 }
 
-int*
+size_t *
 permutation(int max, int scale)
 {
 	int	i, v;
 	static unsigned int r = 0;
-	int*	result = (int*)malloc(max * sizeof(int));
+	size_t*	result = (int*)malloc(max * sizeof(size_t));
 
 	if (result == NULL) return NULL;
 

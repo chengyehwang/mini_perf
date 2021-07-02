@@ -14,7 +14,7 @@
 #include "bench.h"
 #ifndef HOST
 void *valloc(int size) {
-    return memalign(getpagesize(), size);
+    return memalign(4096, size);
 }
 #endif
 
@@ -232,8 +232,8 @@ line_initialize(void* cookie)
 {
 	int i, j, k, line, nlines, npages;
 	unsigned int r;
-	unsigned long    *pages;
-	unsigned long    *lines;
+	size_t    *pages;
+	size_t    *lines;
 	struct mem_state* state = (struct mem_state*)cookie;
 	register char *p = 0 /* lint */;
 
@@ -256,6 +256,18 @@ line_initialize(void* cookie)
 	state->lines = lines;
 	state->pages = pages;
 	
+	if (0) {
+	fprintf(stderr, "line %ld\n", state->line);
+	fprintf(stderr, "nlines %ld\n", state->nlines);
+	fprintf(stderr, "pagesize %ld\n", state->pagesize);
+	fprintf(stderr, "npages %ld\n", state->npages);
+
+	for (int i = 0 ; i < nlines ; i++)
+	    fprintf(stderr, "line data %04llx\n",lines[i]);
+	for (int i = 0 ; i < npages ; i++)
+	    fprintf(stderr, "page data %llx\n",pages[i]);
+	}
+
 	if (state->addr == NULL || state->lines == NULL || state->pages == NULL) {
 		if (state->lines) free(state->lines);
 		if (state->pages) free(state->pages);
@@ -265,7 +277,6 @@ line_initialize(void* cookie)
 		state->addr = NULL;
 		return;
 	}
-
 	if ((unsigned long)p % state->pagesize) {
 		p += state->pagesize;
 		p -= (unsigned long)p % state->pagesize;

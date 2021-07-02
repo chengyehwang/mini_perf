@@ -117,11 +117,13 @@ loads(size_t len, size_t range, size_t stride,
 	/*
 	 * Now walk them and time it.
 	 */
-	benchmp(line_initialize, benchmark_loads, mem_cleanup, 
-		0, parallel, warmup, repetitions, &state);
+	/* benchmp(line_initialize, benchmark_loads, mem_cleanup,
+		0, parallel, warmup, repetitions, &state); */
 
-	/* We want to get to nanoseconds / load. */
-	result = (1000. * (double)gettime()) / (double)(count * get_n());
+	line_initialize(&state);
+	start(0);
+	benchmark_loads(1, &state);
+	result = stop(0, 0);
 	fprintf(stderr, "%.5f %.3f\n", range / (1024. * 1024.), result);
 
 }
