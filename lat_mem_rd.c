@@ -44,7 +44,7 @@ main(int ac, char **av)
 			break;
 		case 'R':
 			fix_range = atoi(optarg);
-            scale = 10;
+            scale = 100;
 			break;
 		case 'N':
 			repetitions = atoi(optarg);
@@ -136,13 +136,11 @@ loads(size_t len, size_t range, size_t stride,
 	double latency = result / (repeat*100) * 1000;
 	fprintf(stderr, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
 
-    if (fix_range == 0) { 
 	if (latency > 100) {
 	scale = 100;
 	} else if (latency > 10) {
 	scale = 10;
 	}
-    }
 }
 
 size_t
