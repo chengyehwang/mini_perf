@@ -12,13 +12,13 @@
 char	*id = "$Id: s.lat_mem_rd.c 1.13 98/06/30 16:13:49-07:00 lm@lm.bitmover.com $\n";
 
 #include "bench.h"
-#define STRIDE  (512/sizeof(char *))
-#define	LOWER	8192
+#define STRIDE  8
+#define	LOWER	16
 void	loads(size_t len, size_t range, size_t stride, 
 	      int parallel, int warmup, int repetitions);
 size_t	step(size_t k);
 
-int	page = 64;
+int	page = 8;
 
 int fix_range = 0;
 
@@ -66,7 +66,7 @@ main(int ac, char **av)
 			      warmup, repetitions);
 		}
     } else if (optind == ac - 1) {
-		fprintf(stdout, "\"stride=%lu\n", STRIDE);
+		fprintf(stdout, "\"stride=%u\n", STRIDE);
 		for (range = LOWER; range <= len; range = step(range)) {
 			loads(len, range, STRIDE, parallel, 
 			      warmup, repetitions);
