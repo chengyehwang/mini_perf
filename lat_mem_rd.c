@@ -87,12 +87,9 @@ benchmark_loads(iter_t iterations, void *cookie)
 	struct mem_state* state = (struct mem_state*)cookie;
 	register char **p = (char**)state->base;
 	register size_t i;
-	register size_t count = state->len / (state->line * 100) + 1;
 
 	while (iterations-- > 0) {
-		for (i = 0; i < count; ++i) {
 			HUNDRED;
-		}
 	}
 
 	use_pointer((void *)p);
@@ -112,9 +109,8 @@ loads(size_t len, size_t range, size_t stride,
 	state.maxlen = len;
 	state.line = stride;
 	state.pagesize = getpagesize();
-	count = state.len / state.line + 1;
 
-	int repeat= 100000000 / count;
+	int repeat= 10000000;
 	/*
 	 * Now walk them and time it.
 	 */
@@ -125,7 +121,7 @@ loads(size_t len, size_t range, size_t stride,
 	start(0);
 	benchmark_loads(repeat, &state);
 	result = stop(0, 0);
-	fprintf(stderr, "range: 0x%x count: %d time: %.3f ns\n", range, count, result/repeat/count*1000);
+	fprintf(stderr, "range: 0x%x count: %d, time: %.3f ns\n", range, repeat * 100, result/(repeat*100)*1000);
 
 }
 
