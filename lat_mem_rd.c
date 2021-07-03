@@ -25,6 +25,8 @@ int fix_range = 0;
 
 int scale = 1;
 
+int infinit = 0;
+
 int
 main(int ac, char **av)
 {
@@ -36,13 +38,16 @@ main(int ac, char **av)
 	size_t	len;
 	size_t	range;
 	size_t	stride;
-	char   *usage = "[-P <page>] [-R <range>] [-N <repetitions>] len [stride...]\n";
+	char   *usage = "[-P <page>] [-R <range>] [-I] [-N <repetitions>] len [stride...]\n";
 
-	while (( c = getopt(ac, av, "P:R:W:N:")) != EOF) {
+	while (( c = getopt(ac, av, "P:IR:W:N:")) != EOF) {
 		switch(c) {
 		case 'P':
 			page = atoi(optarg);
 			break;
+        case 'I':
+            infinit = 1;
+            break;
 		case 'R':
 			fix_range = atoi(optarg);
             scale = 100;
@@ -62,10 +67,8 @@ main(int ac, char **av)
         len = atoi(av[optind]) * 1024 * 1024;
 
     if (fix_range != 0) {
-		for (int i=0; i<repetitions ; i++) {
-			loads(len, fix_range, STRIDE, parallel, 
-			      warmup, repetitions);
-		}
+		loads(len, fix_range, STRIDE, parallel,
+		    warmup, repetitions);
     } else if (optind == ac - 1) {
 		fprintf(stdout, "\"stride=%u\n", STRIDE);
 		for (range = LOWER; range <= len; range = step(range)) {
@@ -107,6 +110,19 @@ benchmark_loads(iter_t iterations, void *cookie)
 	use_pointer((void *)p);
 }
 
+void
+infinit_loads(void *cookie)
+{
+	struct mem_state* state = (struct mem_state*)cookie;
+	register char **p = (char**)state->base;
+
+	while (1) {
+			HUNDRED;
+	}
+
+	use_pointer((void *)p);
+}
+
 
 void
 loads(size_t len, size_t range, size_t stride, 
@@ -131,7 +147,11 @@ loads(size_t len, size_t range, size_t stride,
 
 	line_initialize(&state);
 	start(0);
-	benchmark_loads(repeat, &state);
+    if (infinit) {
+        infinit_loads(&state);
+    } else {
+	    benchmark_loads(repeat, &state);
+    }
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
 	double latency = result / (repeat*100) * 1000;
