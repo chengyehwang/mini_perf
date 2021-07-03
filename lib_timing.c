@@ -1583,6 +1583,62 @@ touch(char *buf, int nbytes)
 }
 
 size_t *
+bit_reverse(int max, int scale)
+{
+	int	i, v;
+	static unsigned int r = 0;
+	size_t*	result = (size_t*)malloc(max * sizeof(size_t));
+
+	if (result == NULL) return NULL;
+
+    int x = max / 16; // low bits
+    int y = max / x; // high bits
+    assert(x * y == max);
+
+    //printf("max %d, x %d, y %d\n", max, x, y);
+
+	size_t*	x_perm = (size_t*)malloc(x * sizeof(size_t));
+	for (i = 0; i < x; i++) {
+		x_perm[i] = i;
+	}
+    for (i = x - 1; i > 0; --i) {
+        r = (r << 1) ^ rand();
+        v = x_perm[r % (i + 1)];
+        x_perm[r % (i + 1)] = x_perm[i];
+        x_perm[i] = v;
+    }
+
+	/*fprintf(stderr, "x_perm(%d): {", max);
+    for (i = 0; i < x; i++) {
+	  fprintf(stderr, "%d", x_perm[i]);
+	  if (i < x - 1)
+	    fprintf(stderr, ",");
+    }
+	fprintf(stderr, "}\n");*/
+
+    for (int x_i = 0 ; x_i < x ; x_i++) {
+        for (int y_i = 0 ; y_i < y ; y_i++) {
+            result[y_i + y * x_perm[x_i]] = (x_i + x * y_i) * scale;
+            //printf("%d %d\n",(y_i + y * x_perm[x_i]), (x_i + x * y_i));
+        }
+    }
+
+
+#ifdef _DEBUG
+	fprintf(stderr, "bit_reverse(%d): {", max);
+	for (i = 0; i < max; ++i) {
+	  fprintf(stderr, "%d", result[i]);
+	  if (i < max - 1)
+	    fprintf(stderr, ",");
+	}
+	fprintf(stderr, "}\n");
+	fflush(stderr);
+#endif /* _DEBUG */
+
+	return (result);
+}
+
+size_t *
 permutation(int max, int scale)
 {
 	int	i, v;

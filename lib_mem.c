@@ -246,7 +246,8 @@ line_initialize(void* cookie)
 	srand(getpid());
 
 	lines = words_initialize(nlines, state->line);
-	pages = permutation(npages, state->pagesize);
+	//pages = permutation(npages, state->pagesize);
+	pages = bit_reverse(npages, state->pagesize);
 	p     = state->addr = (char*)valloc(state->len + state->pagesize);
 
 	state->nwords = 0;

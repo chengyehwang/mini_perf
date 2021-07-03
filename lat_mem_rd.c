@@ -13,7 +13,8 @@ char	*id = "$Id: s.lat_mem_rd.c 1.13 98/06/30 16:13:49-07:00 lm@lm.bitmover.com 
 
 #include "bench.h"
 #define STRIDE  8
-#define	LOWER	16
+#define	LOWER	1024
+//#define	LOWER	256
 void	loads(size_t len, size_t range, size_t stride, 
 	      int parallel, int warmup, int repetitions);
 size_t	step(size_t k);
