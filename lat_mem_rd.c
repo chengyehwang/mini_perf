@@ -111,20 +111,6 @@ benchmark_loads(iter_t iterations, void *cookie)
 }
 
 void
-infinit_loads(void *cookie)
-{
-	struct mem_state* state = (struct mem_state*)cookie;
-	register char **p = (char**)state->base;
-
-	while (1) {
-			HUNDRED;
-	}
-
-	use_pointer((void *)p);
-}
-
-
-void
 loads(size_t len, size_t range, size_t stride, 
 	int parallel, int warmup, int repetitions)
 {
@@ -146,16 +132,15 @@ loads(size_t len, size_t range, size_t stride,
 		0, parallel, warmup, repetitions, &state); */
 
 	line_initialize(&state);
+    while (1) {
 	start(0);
-    if (infinit) {
-        infinit_loads(&state);
-    } else {
-	    benchmark_loads(repeat, &state);
-    }
+    benchmark_loads(repeat, &state);
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
 	double latency = result / (repeat*100) * 1000;
 	fprintf(stdout, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
+    if (!infinit) break;
+    }
 
 	if (latency > 100) {
 	scale = 100;
