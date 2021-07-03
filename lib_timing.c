@@ -1608,6 +1608,17 @@ bit_reverse(int max, int scale)
         x_perm[i] = v;
     }
 
+	size_t*	y_perm = (size_t*)malloc(y * sizeof(size_t));
+	for (i = 0; i < y; i++) {
+		y_perm[i] = i;
+	}
+    for (i = y - 1; i > 0; --i) {
+        r = (r << 1) ^ rand();
+        v = y_perm[r % (i + 1)];
+        y_perm[r % (i + 1)] = y_perm[i];
+        y_perm[i] = v;
+    }
+
 	/*fprintf(stderr, "x_perm(%d): {", max);
     for (i = 0; i < x; i++) {
 	  fprintf(stderr, "%d", x_perm[i]);
@@ -1616,12 +1627,14 @@ bit_reverse(int max, int scale)
     }
 	fprintf(stderr, "}\n");*/
 
-    for (int x_i = 0 ; x_i < x ; x_i++) {
-        for (int y_i = 0 ; y_i < y ; y_i++) {
-            result[y_i + y * x_perm[x_i]] = (x_i + x * y_i) * scale;
-            //printf("%d %d\n",(y_i + y * x_perm[x_i]), (x_i + x * y_i));
+    for (int y_i = 0 ; y_i < y ; y_i++) {
+        for (int x_i = 0 ; x_i < x ; x_i++) {
+            result[y_i * x + x_i] = (x_perm[x_i] * y + y_perm[y_i]) * scale;
+            //printf("%4x %4x\n",(y_i * x + x_i), (x_perm[x_i] * y + y_perm[y_i]));
         }
     }
+    free(x_perm);
+    free(y_perm);
 
 
 #ifdef _DEBUG
