@@ -20,6 +20,7 @@ local:
 	adb shell su -c '/data/local/tmp/mini_perf.exe --cache3 /data/local/tmp/sleep.sh'
 	adb pull /data/local/tmp/mini_perf.head
 	adb pull /data/local/tmp/mini_perf.data
+	adb pull /data/local/tmp/mini_perf.last_data
 	./mini_perf.py
 run:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
