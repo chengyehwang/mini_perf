@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 import re
 import glob
+import simplejson as json
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--last", action="store_true", help="handle last data")
+args = parser.parse_args()
+
 name = []
 filename = glob.glob('*mini_perf.head')[0]
 with open(filename, 'r') as f:
@@ -12,7 +18,10 @@ with open(filename, 'r') as f:
             name.append(m.group(1))
 #print(name)
 def read_file():
-    file_data = filename.replace('.head','.data')
+    if args.last:
+        file_data = filename.replace('.head','.last_data')
+    else:
+        file_data = filename.replace('.head','.data')
     array = []
     with open(file_data, 'rb') as f:
         data = np.fromfile(f, dtype='int64')
@@ -29,7 +38,7 @@ data = pd.DataFrame(counter,columns=name)
 data['time'] = data['time'] / 1000000.0
 data = data.set_index('time')
 
-data = data.diff()
+data = data.diff().dropna()
 
 cpu_list = ['0','1','2','3','4','5','6','7']
 cpu_group = {'L': ['0','1','2','3'], 'B': ['4','5','6','7']}
@@ -119,6 +128,13 @@ for cpu in cpu_list:
 
     impact = 'cache_impact' + cpu
     data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
+
+if args.last:
+    file_json = filename.replace('.head','.json')
+    with open(file_json, 'w') as fp:
+        result = data.iloc[-1].to_json()
+        parsed = json.loads(result)
+        fp.write(json.dumps(parsed, indent=4))
 
 #print(data)
 file_excel = filename.replace('.head','.xlsx')

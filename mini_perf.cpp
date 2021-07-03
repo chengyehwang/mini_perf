@@ -221,6 +221,17 @@ int perf(int pid=-1) {
     fwrite(data, sizeof(unsigned long long), data_total, writer);
     fclose(writer);
 
+#ifdef HOST
+    writer = fopen("mini_perf.last_data", "wb");
+#else
+    writer = fopen("/data/local/tmp/mini_perf.last_data", "wb");
+#endif
+    data_total = (1 + cpu * group_index[group]);
+    unsigned long long *last_data = data + (sample -1) * data_total ;
+    fwrite(data, sizeof(unsigned long long), data_total, writer);
+    fwrite(last_data, sizeof(unsigned long long), data_total, writer);
+    fclose(writer);
+
     // wirte head to file
 #ifdef HOST
     writer = fopen("mini_perf.head", "w");
