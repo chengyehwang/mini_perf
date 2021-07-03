@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import sys
 import pandas as pd
 import re
 import glob
@@ -135,6 +136,7 @@ if args.last:
         result = data.iloc[-1].to_json()
         parsed = json.loads(result)
         fp.write(json.dumps(parsed, indent=4))
+    sys.exit(0)
 
 #print(data)
 file_excel = filename.replace('.head','.xlsx')
