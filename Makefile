@@ -1,3 +1,6 @@
+latency:
+	gcc -g -DHOST=1 lib_mem.c lib_timing.c lat_mem_rd.c -o lat_mem_rd
+	./lat_mem_rd 16
 host:
 	g++ -g -DHOST=1 mini_perf.cpp -o mini_perf
 	gcc -DHOST=1 lib_mem.c lib_timing.c lat_mem_rd.c -o lat_mem_rd
@@ -8,6 +11,8 @@ build:
 	./android-ndk-r21/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
+	adb push lat_mem_rd.exe /data/local/tmp
+	adb shell /data/local/tmp/lat_mem_rd.exe 8
 local:
 	adb push mini_perf.exe /data/local/tmp
 	adb push sleep.sh /data/local/tmp
@@ -37,5 +42,8 @@ lala:
 pmu:
 	wget https://android.googlesource.com/platform/system/extras/+archive/master/simpleperf.tar.gz
 
-latency:
+busybox:
+	wget https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-armv8l
+	chmod 755 busybox-armv8l
+	adb push busybox-armv8l /data/local/tmp
 
