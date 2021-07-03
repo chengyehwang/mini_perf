@@ -1592,14 +1592,17 @@ bit_reverse(int max, int scale)
 	if (result == NULL) return NULL;
 
     int x,y,z;
-    
-    if (max > 1024) {
-        x = max / 32 / 32; // low bits
+    if (max >= (1<<14)){
+        x = 16; // low bits
+        y = 64; // mid bits
+        z = max / (x * y); // high bits
+    } else if (max >= (1<<12)) {
+        x = 16; // low bits
         y = 32; // mid bits
         z = max / (x * y); // high bits
     } else {
-        x = max / 32; // low bits
-        y = 1; // mid bits
+        x = 8; // low bits
+        y = 16; // mid bits
         z = max / (x * y); // high bits
     }
     assert(x * y * z == max);
