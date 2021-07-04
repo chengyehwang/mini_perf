@@ -58,7 +58,7 @@ main(int ac, char **av)
 			fix_range = atoi(optarg);
             if (fix_range >= 1<<22) {
                 scale = 100;
-            } if (fix_range >= 1<<15) {
+            } else if (fix_range >= 1<<15) {
                 scale = 10;
             } else {
                 scale = 1;
