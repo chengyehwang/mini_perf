@@ -56,7 +56,11 @@ main(int ac, char **av)
             break;
 		case 'R':
 			fix_range = atoi(optarg);
-            scale = 100;
+            if (fix_range > 1<<20) {
+                scale = 10;
+            } else {
+                scale = 1;
+            }
 			break;
 		case 'N':
 			repetitions = atoi(optarg);

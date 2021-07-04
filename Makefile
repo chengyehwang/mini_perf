@@ -15,13 +15,14 @@ build:
 	adb shell /data/local/tmp/lat_mem_rd.exe 8
 local:
 	adb push mini_perf.exe /data/local/tmp
-	adb push sleep.sh /data/local/tmp
-	#adb shell /data/local/tmp/mini_perf.exe --cache3 -u /data/local/tmp/sleep.sh
-	adb shell su -c '/data/local/tmp/mini_perf.exe --cache3 /data/local/tmp/sleep.sh'
+	adb push lat_mem_rd.exe /data/local/tmp
+	adb push test.sh /data/local/tmp
+	adb shell chmod 755 /data/local/tmp/test.sh
+	adb shell su -c '/data/local/tmp/test.sh'
 	adb pull /data/local/tmp/mini_perf.head
 	adb pull /data/local/tmp/mini_perf.data
 	adb pull /data/local/tmp/mini_perf.last_data
-	./mini_perf.py
+	./mini_perf.py --last
 run:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
 ndk:
