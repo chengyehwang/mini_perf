@@ -58,7 +58,7 @@ main(int ac, char **av)
 			fix_range = atoi(optarg);
             if (fix_range > 1<<22) {
                 scale = 100;
-            if (fix_range > 1<<18) {
+            } if (fix_range > 1<<18) {
                 scale = 10;
             } else {
                 scale = 1;
@@ -136,7 +136,7 @@ loads(size_t len, size_t range, size_t stride,
 	state.line = stride;
 	state.pagesize = page;
 
-	int repeat= 100000000 / scale;
+	long long int repeat= 100000000 / scale;
 	/*
 	 * Now walk them and time it.
 	 */
@@ -144,20 +144,23 @@ loads(size_t len, size_t range, size_t stride,
 		0, parallel, warmup, repetitions, &state); */
 
 	line_initialize(&state);
+    double latency;
     while (1) {
 	start(0);
     benchmark_loads(repeat, &state);
 	result = stop(0, 0);
 	int div = state.npages * state.nlines;
-	double latency = result / (repeat*100) * 1000;
-	fprintf(stdout, "range: %9ld, div: %7d, count: %10d, time: %7.3f ns\n", range, div, repeat*100, latency);
+	latency = result / (repeat*100) * 1000;
+	fprintf(stdout, "range: %9ld, div: %7d, count: %10lld, time: %7.3f ns\n", range, div, repeat*100, latency);
     if (!infinit) break;
     }
 
-	if (latency > 100) {
+	if (latency > 100.0) {
 	scale = 100;
-	} else if (latency > 10) {
+	} else if (latency > 20.0) {
 	scale = 10;
+    } else {
+    scale = 1;
 	}
 }
 
