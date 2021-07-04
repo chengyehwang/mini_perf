@@ -27,9 +27,15 @@ int scale = 1;
 
 int infinit = 0;
 
+void proc_exit(int s) {
+    fflush(stdout);
+    exit(0);
+}
+
 int
 main(int ac, char **av)
 {
+    signal(SIGINT, proc_exit);
 	int	i;
 	int	c;
 	int	parallel = 1;
