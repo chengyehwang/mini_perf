@@ -56,7 +56,9 @@ main(int ac, char **av)
             break;
 		case 'R':
 			fix_range = atoi(optarg);
-            if (fix_range > 1<<20) {
+            if (fix_range > 1<<22) {
+                scale = 100;
+            if (fix_range > 1<<18) {
                 scale = 10;
             } else {
                 scale = 1;
@@ -134,7 +136,7 @@ loads(size_t len, size_t range, size_t stride,
 	state.line = stride;
 	state.pagesize = page;
 
-	int repeat= 10000000 / scale;
+	int repeat= 100000000 / scale;
 	/*
 	 * Now walk them and time it.
 	 */
