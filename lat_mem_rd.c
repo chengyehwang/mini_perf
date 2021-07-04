@@ -56,7 +56,7 @@ main(int ac, char **av)
             break;
 		case 'R':
 			fix_range = atoi(optarg);
-            if (fix_range >= 1<<22) {
+            if (fix_range >= 1<<21) {
                 scale = 100;
             } else if (fix_range >= 1<<15) {
                 scale = 10;
