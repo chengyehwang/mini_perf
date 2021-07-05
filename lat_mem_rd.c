@@ -56,13 +56,13 @@ main(int ac, char **av)
             break;
 		case 'R':
 			fix_range = atoi(optarg);
-            if (fix_range >= 1<<21) {
-                scale = 100;
-            } else if (fix_range >= 1<<15) {
-                scale = 10;
-            } else {
-                scale = 1;
-            }
+			if (fix_range >= 1<<21) {
+				scale = 100;
+			} else if (fix_range >= 1<<15) {
+				scale = 10;
+			} else {
+				scale = 1;
+			}
 			break;
 		case 'N':
 			repetitions = atoi(optarg);
@@ -78,10 +78,10 @@ main(int ac, char **av)
 
         len = atoi(av[optind]) * 1024 * 1024;
 
-    if (fix_range != 0) {
+	if (fix_range != 0) {
 		loads(len, fix_range, STRIDE, parallel,
-		    warmup, repetitions);
-    } else if (optind == ac - 1) {
+				warmup, repetitions);
+	} else if (optind == ac - 1) {
 		fprintf(stdout, "\"stride=%u\n", STRIDE);
 		for (range = LOWER; range <= len; range = step(range)) {
 			loads(len, range, STRIDE, parallel, 
@@ -116,7 +116,7 @@ benchmark_loads(iter_t iterations, void *cookie)
 	register size_t i;
 
 	while (iterations-- > 0) {
-			HUNDRED;
+		HUNDRED;
 	}
 
 	use_pointer((void *)p);
@@ -144,34 +144,34 @@ loads(size_t len, size_t range, size_t stride,
 		0, parallel, warmup, repetitions, &state); */
 
 	line_initialize(&state);
-    double latency;
-    while (1) {
-	start(0);
-    benchmark_loads(repeat, &state);
-	result = stop(0, 0);
-	int div = state.npages * state.nlines;
-	latency = result / (repeat*100) * 1000;
-	fprintf(stdout, "range: %9ld, div: %7d, count: %10lld, time: %7.3f ns\n", range, div, repeat*100, latency);
-    if (!infinit) break;
-    }
+	double latency;
+	while (1) {
+		start(0);
+		benchmark_loads(repeat, &state);
+		result = stop(0, 0);
+		int div = state.npages * state.nlines;
+		latency = result / (repeat*100) * 1000;
+		fprintf(stdout, "range: %9ld, div: %7d, count: %10lld, time: %7.3f ns\n", range, div, repeat*100, latency);
+		if (!infinit) break;
+	}
 
 	if (latency > 100.0) {
-	scale = 100;
+		scale = 100;
 	} else if (latency > 20.0) {
-	scale = 10;
-    } else {
-    scale = 1;
+		scale = 10;
+	} else {
+		scale = 1;
 	}
 }
 
 size_t
 step(size_t k)
 {
-    for (int i = 30 ; i > 5 ; i--)
-    {
-        if (k >= (1<<i)) {
-            return k += 1<<(i-1);
-        }
-    }
-    return k * 2;
+	for (int i = 30 ; i > 5 ; i--)
+	{
+		if (k >= (1<<i)) {
+			return k += 1<<(i-1);
+		}
+	}
+	return k * 2;
 }

@@ -1591,84 +1591,84 @@ bit_reverse(int max, int scale)
 
 	if (result == NULL) return NULL;
 
-    int x,y,z;
-    if (max >= (1<<14)){
-        x = 16; // low bits
-        y = 64; // mid bits
-        z = max / (x * y); // high bits
-    } else if (max >= (1<<12)) {
-        x = 16; // low bits
-        y = 32; // mid bits
-        z = max / (x * y); // high bits
-    } else {
-        x = 8; // low bits
-        y = 16; // mid bits
-        z = max / (x * y); // high bits
-    }
-    assert(x * y * z == max);
+	int x,y,z;
+	if (max >= (1<<14)){
+		x = 16; // low bits
+		y = 64; // mid bits
+		z = max / (x * y); // high bits
+	} else if (max >= (1<<12)) {
+		x = 16; // low bits
+		y = 32; // mid bits
+		z = max / (x * y); // high bits
+	} else {
+		x = 8; // low bits
+		y = 16; // mid bits
+		z = max / (x * y); // high bits
+	}
+	assert(x * y * z == max);
 
-    //printf("max %d, x %d, y %d\n", max, x, y);
+	//printf("max %d, x %d, y %d\n", max, x, y);
 
 	size_t*	x_perm = (size_t*)malloc(x * sizeof(size_t));
 	for (i = 0; i < x; i++) {
 		x_perm[i] = i;
 	}
-    for (i = x - 1; i > 0; --i) {
-        r = (r << 1) ^ rand();
-        v = x_perm[r % (i + 1)];
-        x_perm[r % (i + 1)] = x_perm[i];
-        x_perm[i] = v;
-    }
+	for (i = x - 1; i > 0; --i) {
+		r = (r << 1) ^ rand();
+		v = x_perm[r % (i + 1)];
+		x_perm[r % (i + 1)] = x_perm[i];
+		x_perm[i] = v;
+	}
 
 	size_t*	y_perm = (size_t*)malloc(y * sizeof(size_t));
 	for (i = 0; i < y; i++) {
 		y_perm[i] = i;
 	}
-    for (i = y - 1; i > 0; --i) {
-        r = (r << 1) ^ rand();
-        v = y_perm[r % (i + 1)];
-        y_perm[r % (i + 1)] = y_perm[i];
-        y_perm[i] = v;
-    }
+	for (i = y - 1; i > 0; --i) {
+		r = (r << 1) ^ rand();
+		v = y_perm[r % (i + 1)];
+		y_perm[r % (i + 1)] = y_perm[i];
+		y_perm[i] = v;
+	}
 
 	size_t*	z_perm = (size_t*)malloc(z * sizeof(size_t));
 	for (i = 0; i < z; i++) {
 		z_perm[i] = i;
 	}
-    for (i = z - 1; i > 0; --i) {
-        r = (r << 1) ^ rand();
-        v = z_perm[r % (i + 1)];
-        z_perm[r % (i + 1)] = z_perm[i];
-        z_perm[i] = v;
-    }
+	for (i = z - 1; i > 0; --i) {
+		r = (r << 1) ^ rand();
+		v = z_perm[r % (i + 1)];
+		z_perm[r % (i + 1)] = z_perm[i];
+		z_perm[i] = v;
+	}
 
 	/*fprintf(stderr, "x_perm(%d): {", max);
-    for (i = 0; i < x; i++) {
+	  for (i = 0; i < x; i++) {
 	  fprintf(stderr, "%d", x_perm[i]);
 	  if (i < x - 1)
-	    fprintf(stderr, ",");
-    }
-	fprintf(stderr, "}\n");*/
+	  fprintf(stderr, ",");
+	  }
+	  fprintf(stderr, "}\n");*/
 
-    for (int z_i = 0 ; z_i < z ; z_i++) {
-        for (int y_i = 0 ; y_i < y ; y_i++) {
-            for (int x_i = 0 ; x_i < x ; x_i++) {
-                result[z_i * y * x + y_i * x + x_i] = (x_perm[x_i] * y * z + y_perm[y_i] * z + z_perm[z_i]) * scale;
-                //printf("%4x %4x\n",(y_i * x + x_i), (x_perm[x_i] * y + y_perm[y_i]));
-            }
-        }
-    }
-    free(x_perm);
-    free(y_perm);
-    free(z_perm);
+	for (int z_i = 0 ; z_i < z ; z_i++) {
+		for (int y_i = 0 ; y_i < y ; y_i++) {
+			for (int x_i = 0 ; x_i < x ; x_i++) {
+				result[z_i * y * x + y_i * x + x_i] = (x_perm[x_i] * y * z + y_perm[y_i] * z + z_perm[z_i]) * scale;
+				//printf("%4x %4x\n",(y_i * x + x_i), (x_perm[x_i] * y + y_perm[y_i]));
+			}
+		}
+	}
+	free(x_perm);
+	free(y_perm);
+	free(z_perm);
 
 
 #ifdef _DEBUG
 	fprintf(stderr, "bit_reverse(%d): {", max);
 	for (i = 0; i < max; ++i) {
-	  fprintf(stderr, "%d", result[i]);
-	  if (i < max - 1)
-	    fprintf(stderr, ",");
+		fprintf(stderr, "%d", result[i]);
+		if (i < max - 1)
+			fprintf(stderr, ",");
 	}
 	fprintf(stderr, "}\n");
 	fflush(stderr);
@@ -1704,9 +1704,9 @@ permutation(int max, int scale)
 #ifdef _DEBUG
 	fprintf(stderr, "permutation(%d): {", max);
 	for (i = 0; i < max; ++i) {
-	  fprintf(stderr, "%d", result[i]);
-	  if (i < max - 1) 
-	    fprintf(stderr, ",");
+		fprintf(stderr, "%d", result[i]);
+		if (i < max - 1) 
+			fprintf(stderr, ",");
 	}
 	fprintf(stderr, "}\n");
 	fflush(stderr);
