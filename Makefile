@@ -48,4 +48,6 @@ busybox:
 	wget https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-armv8l
 	chmod 755 busybox-armv8l
 	adb push busybox-armv8l /data/local/tmp
-
+lmbench:
+	wget https://sourceforge.net/projects/lmbench/files/OldFiles/lmbench-3.0-a3.tgz
+	tar zxvf lmbench-3.0-a3.tgz
