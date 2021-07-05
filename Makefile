@@ -11,8 +11,6 @@ build:
 	./android-ndk-r21e/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
-	adb push lat_mem_rd.exe /data/local/tmp
-	adb shell /data/local/tmp/lat_mem_rd.exe 8
 local:
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp

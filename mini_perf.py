@@ -130,6 +130,14 @@ for cpu in cpu_list:
     impact = 'cache_impact' + cpu
     data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
 
+columns = list(data.columns)
+def compare(item):
+    return item[-1]
+
+columns = sorted(columns, key=compare)
+
+data = data[columns]
+
 if args.last:
     file_json = filename.replace('.head','.json')
     with open(file_json, 'w') as fp:
