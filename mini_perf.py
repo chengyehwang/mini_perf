@@ -127,8 +127,9 @@ for cpu in cpu_list:
         data[l3_hit] = data[l3_req] * (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
 
-    impact = 'cache_impact' + cpu
-    data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
+    if l1_hit in data.columns and l2_hit in data_columns and l3_hit in data_columns and dram_hit in data.columns:
+        impact = 'cache_impact' + cpu
+        data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
 
 columns = list(data.columns)
 def compare(item):
@@ -171,6 +172,12 @@ for cpu in cpu_list:
     l2_hit = 'l2-cache-hit' + cpu
     l3_hit = 'l3-cache-hit' + cpu
     dram_hit = 'dram-hit' + cpu
+    CPI = -1
+    MIPS = -1
+    L1 = -1
+    L2 = -1
+    L3 = -1
+    L3 = -1
     for i in range(len(data.columns)): # index as first column = 1
         if cpi == data.columns[i]:
             CPI = i + 2
@@ -189,7 +196,8 @@ for cpu in cpu_list:
 
         if dram_hit == data.columns[i]:
             L4 = i + 2
-
+    if CPI < 0 or MIPS < 0 or L1 < 0 or L2 < 0 or L3 < 0 or L4 < 0:
+        continue
     # penalty columns
     w0 = get_column_letter(column+1) + '1'
     w1 = get_column_letter(column+1) + '2'
@@ -276,8 +284,9 @@ print(table)
 from plotly.offline import iplot
 from plotly.subplots import make_subplots
 import plotly.express as px
-fig = px.line(table, x='time', y = 'value', color = 'cpu', facet_row = 'kpi')
+if 'time' in table.columns:
+    fig = px.line(table, x='time', y = 'value', color = 'cpu', facet_row = 'kpi')
 
-file_image = filename.replace('.head','.png')
-fig.write_image(file_image)
+    file_image = filename.replace('.head','.png')
+    fig.write_image(file_image)
 

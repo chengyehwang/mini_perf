@@ -12,6 +12,9 @@ build:
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
 local:
+	-adb shell su -c 'rm /data/local/tmp/mini_perf.head'
+	-adb shell su -c 'rm /data/local/tmp/mini_perf.data'
+	-adb shell su -c 'rm /data/local/tmp/mini_perf.last_data'
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp
 	adb push test.sh /data/local/tmp
@@ -21,6 +24,7 @@ local:
 	adb pull /data/local/tmp/mini_perf.data
 	adb pull /data/local/tmp/mini_perf.last_data
 	./mini_perf.py --last
+	./mini_perf.py
 run:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
 ndk:
