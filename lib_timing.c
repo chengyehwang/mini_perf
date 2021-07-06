@@ -1589,7 +1589,10 @@ bit_reverse(int max, int scale)
 	static unsigned int r = 0;
 	size_t*	result = (size_t*)malloc(max * sizeof(size_t));
 
-	if (result == NULL) return NULL;
+	if (result == NULL) {
+	    printf("malloc err");
+	    return NULL;
+	}
 
 	int x,y,z;
 	if (max >= (1<<14)){
@@ -1610,6 +1613,10 @@ bit_reverse(int max, int scale)
 	//printf("max %d, x %d, y %d\n", max, x, y);
 
 	size_t*	x_perm = (size_t*)malloc(x * sizeof(size_t));
+	if (x_perm == NULL) {
+	    printf("malloc err");
+	    return NULL;
+	}
 	for (i = 0; i < x; i++) {
 		x_perm[i] = i;
 	}
@@ -1621,6 +1628,10 @@ bit_reverse(int max, int scale)
 	}
 
 	size_t*	y_perm = (size_t*)malloc(y * sizeof(size_t));
+	if (y_perm == NULL) {
+	    printf("malloc err");
+	    return NULL;
+	}
 	for (i = 0; i < y; i++) {
 		y_perm[i] = i;
 	}
@@ -1632,6 +1643,10 @@ bit_reverse(int max, int scale)
 	}
 
 	size_t*	z_perm = (size_t*)malloc(z * sizeof(size_t));
+	if (z_perm == NULL) {
+	    printf("malloc err");
+	    return NULL;
+	}
 	for (i = 0; i < z; i++) {
 		z_perm[i] = i;
 	}
@@ -1682,7 +1697,7 @@ permutation(int max, int scale)
 {
 	int	i, v;
 	static unsigned int r = 0;
-	size_t*	result = (int*)malloc(max * sizeof(size_t));
+	size_t*	result = (size_t*)malloc(max * sizeof(size_t));
 
 	if (result == NULL) return NULL;
 

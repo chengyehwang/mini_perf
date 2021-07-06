@@ -128,7 +128,7 @@ int perf(int pid=-1) {
                 memset(& ref, 0, sizeof(struct perf_event_attr));
                 ref.type = group_counter[group_i][count_i]->type;
                 ref.size = sizeof(ref);
-                ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING| PERF_FORMAT_TOTAL_TIME_ENABLED ;
+                ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING | PERF_FORMAT_TOTAL_TIME_ENABLED ;
                 ref.config = group_counter[group_i][count_i]->config;
                 ref.sample_freq = 1;
                 ref.freq = 1;
@@ -184,6 +184,7 @@ int perf(int pid=-1) {
                 int re = read(fd[cpu_i][group_i][0], data+data_group(sample_i,cpu_i,group_i), (group_num[group_i]+3) * sizeof(unsigned long long));
                 if (re == -1) {fd[cpu_i][group_i][0] = -1;} // read err
                 if (print) {
+			printf("time_enabled time_running %llu %llu #\n",data[data_group(sample_i,cpu_i,group_i)+1],data[data_group(sample_i,cpu_i,group_i)+2]);
                     for(int m = 0 ; m < group_num[group_i] ; m++) {
                         printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+3+m], group_name[group_i][m],group_i,cpu_i);
                     }

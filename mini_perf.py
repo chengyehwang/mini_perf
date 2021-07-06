@@ -139,7 +139,7 @@ for cpu in cpu_list:
         data[l3_hit] = data[l3_req] * (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
 
-    if l1_hit in data.columns and l2_hit in data.columns and l3_hit in data_columns and dram_hit in data.columns:
+    if l1_hit in data.columns and l2_hit in data.columns and l3_hit in data.columns and dram_hit in data.columns:
         impact = 'cache_impact' + cpu
         data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
 
