@@ -128,9 +128,9 @@ int perf(int pid=-1) {
                 memset(& ref, 0, sizeof(struct perf_event_attr));
                 ref.type = group_counter[group_i][count_i]->type;
                 ref.size = sizeof(ref);
-                ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING;
+                ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING| PERF_FORMAT_TOTAL_TIME_ENABLED ;
                 ref.config = group_counter[group_i][count_i]->config;
-                ref.sample_freq = 10;
+                ref.sample_freq = 1;
                 ref.freq = 1;
                 int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd[cpu_i][group_i][count_i] = fd_ref;
@@ -152,7 +152,7 @@ int perf(int pid=-1) {
     group_index[0] = 0;
     for (int i=0 ; i < group ; i++)
     {
-        group_index[i+1] = group_index[i] + group_num[i] + 2;
+        group_index[i+1] = group_index[i] + group_num[i] + 3;
     }
     struct timeval tp;
     gettimeofday(&tp, NULL);
@@ -181,11 +181,11 @@ int perf(int pid=-1) {
             {
 
                 if (fd[cpu_i][group_i][0] == -1) continue;
-                int re = read(fd[cpu_i][group_i][0], data+data_group(sample_i,cpu_i,group_i), (group_num[group_i]+2) * sizeof(unsigned long long));
+                int re = read(fd[cpu_i][group_i][0], data+data_group(sample_i,cpu_i,group_i), (group_num[group_i]+3) * sizeof(unsigned long long));
                 if (re == -1) {fd[cpu_i][group_i][0] = -1;} // read err
                 if (print) {
                     for(int m = 0 ; m < group_num[group_i] ; m++) {
-                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+2+m], group_name[group_i][m],group_i,cpu_i);
+                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+3+m], group_name[group_i][m],group_i,cpu_i);
                     }
                 }
             }
@@ -248,7 +248,8 @@ int perf(int pid=-1) {
         for (int group_i = 0 ; group_i < group ; group_i++)
         {
             fprintf(writer, "count: group_g%d%s\n",group_i,cpu_name);
-            fprintf(writer, "count: time_g%d%s\n",group_i,cpu_name);
+            fprintf(writer, "count: time_enabled_g%d%s\n",group_i,cpu_name);
+            fprintf(writer, "count: time_running_g%d%s\n",group_i,cpu_name);
             for(int count_i=0 ; count_i < group_num[group_i] ; count_i++)
             {
                 fprintf(writer, "count: %s_g%d%s\n",group_name[group_i][count_i],group_i,cpu_name);
@@ -302,14 +303,14 @@ int main(int argc, char* argv[]) {
                     group_parsing(x3);
                     char x4[] = "raw-l2d-cache,raw-l2d-cache-refill";
                     group_parsing(x4);
-                    char x5[] = "raw-l3d-cache,raw-l3d-cache-refill";
+                    char x5[] = "raw-l3d-cache,raw-l3d-cache-refill,raw-l2d-tlb-refill";
                     group_parsing(x5);
                     cpu_select = 0xff;
                 }
                 else if (strcmp(longopts[option_index].name,"cache6")==0) {
                     char x0[] = "raw-inst-retired,raw-cpu-cycles,raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
                     group_parsing(x0);
-                    char x1[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
+                    char x1[] = "raw-l2d-tlb-refill,raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x1);
                     cpu_select = 0xff;
                 }

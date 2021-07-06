@@ -11,10 +11,14 @@ build:
 	./android-ndk-r21e/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
+	adb push mini_perf.exe /data/local/tmp
+	adb push lat_mem_rd.exe /data/local/tmp
 local:
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.head'
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.data'
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.last_data'
+	-adb shell su -c 'rm /data/local/tmp/lat_mem_rd.log'
+	-adb shell su -c 'rm /data/local/tmp/lat_mem_rd.err'
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp
 	adb push test.sh /data/local/tmp
@@ -23,6 +27,8 @@ local:
 	adb pull /data/local/tmp/mini_perf.head
 	adb pull /data/local/tmp/mini_perf.data
 	adb pull /data/local/tmp/mini_perf.last_data
+	adb pull /data/local/tmp/lat_mem_rd.log
+	adb pull /data/local/tmp/lat_mem_rd.err
 	./mini_perf.py --last
 	./mini_perf.py
 run:
@@ -53,3 +59,5 @@ busybox:
 lmbench:
 	wget https://sourceforge.net/projects/lmbench/files/OldFiles/lmbench-3.0-a3.tgz
 	tar zxvf lmbench-3.0-a3.tgz
+dasm:
+	android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-objdump -D lat_mem_rd.exe > lat_mem_rd.dasm

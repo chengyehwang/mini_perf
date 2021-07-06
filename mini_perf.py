@@ -37,9 +37,22 @@ counter = read_file()
 data = pd.DataFrame(counter,columns=name)
 
 data['time'] = data['time'] / 1000000.0
+data['delta'] = data['time']
 data = data.set_index('time')
 
 data = data.diff().dropna()
+
+# group update running / enabled
+for counter in data.columns:
+    #print(counter)
+    #print(data.columns)
+    m = re.search('^(.*)(_g\d)(_cpu\d)$', counter)
+    if m:
+        counter_new = m.group(1) + m.group(3)
+        post_fix = m.group(2) + m.group(3)
+        if counter_new in data.columns:
+            continue
+        data[counter_new] = (data[counter] * data['time_enabled'+post_fix] / data['time_running'+post_fix]).round()
 
 cpu_list = ['0','1','2','3','4','5','6','7']
 cpu_group = {'L': ['0','1','2','3'], 'B': ['4','5','6','7']}
@@ -78,7 +91,6 @@ for cpu in cpu_list:
             if count_refill in data.columns and count_total in data.columns:
                 data[count_miss] = data[count_refill] / data[count_total]
 
-        count_time = 'time' + group + cpu
         count_mips = 'mips' + cpu
 
         count_inst = 'raw-inst-retired' + group + cpu
@@ -87,8 +99,8 @@ for cpu in cpu_list:
         count_i_req = 'l1i-cache-req' + cpu
         count_d_req = 'l1d-cache-req' + cpu
 
-        if count_time in data.columns and count_inst in data.columns:
-            data[count_mips] = data[count_inst] / data[count_time] * 1000
+        if count_inst in data.columns:
+            data[count_mips] = data[count_inst] / data['delta'] / 1000000
 
         if count_inst in data.columns and count_i in data.columns:
             data[count_i_req] = data[count_i] / data[count_inst]
@@ -127,7 +139,7 @@ for cpu in cpu_list:
         data[l3_hit] = data[l3_req] * (1 - data[l3_miss])
         data[dram_hit] = data[l3_req] * data[l3_miss]
 
-    if l1_hit in data.columns and l2_hit in data_columns and l3_hit in data_columns and dram_hit in data.columns:
+    if l1_hit in data.columns and l2_hit in data.columns and l3_hit in data_columns and dram_hit in data.columns:
         impact = 'cache_impact' + cpu
         data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
 
