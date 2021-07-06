@@ -322,6 +322,8 @@ int main(int argc, char* argv[]) {
                     group_parsing(x1);
                     char x2[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x2);
+                    char x3[] = "raw-inst-spec,raw-ldst-spec,raw-inst-retired,raw-l2d-tlb-refill";
+                    group_parsing(x3);
                     cpu_select = 0xff;
                 }
                 else if (strcmp(longopts[option_index].name,"group")==0)
