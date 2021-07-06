@@ -1,6 +1,16 @@
 latency:
 	gcc -g -DHOST=1 lib_mem.c lib_timing.c lat_mem_rd.c -o lat_mem_rd
 	./lat_mem_rd 16
+run:
+	adb push run.sh /data/local/tmp
+	adb shell chmod 755 /data/local/tmp/run.sh
+	adb shell su -c '/data/local/tmp/run.sh'
+	adb pull /data/local/tmp/mini_perf.head
+	adb pull /data/local/tmp/mini_perf.data
+	adb pull /data/local/tmp/mini_perf.last_data
+	./mini_perf.py --last
+	./mini_perf.py
+
 host:
 	g++ -g -DHOST=1 mini_perf.cpp -o mini_perf
 	gcc -DHOST=1 lib_mem.c lib_timing.c lat_mem_rd.c -o lat_mem_rd
@@ -31,7 +41,7 @@ local:
 	adb pull /data/local/tmp/lat_mem_rd.err
 	./mini_perf.py --last
 	./mini_perf.py
-run:
+old:
 	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command ". .\run_systrace.ps1"
 ndk:
 	wget https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip

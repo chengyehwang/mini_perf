@@ -13,9 +13,6 @@
 #include<sys/time.h>
 
 using namespace std;
-#define ATRACE_MESSAGE_LEN 256
-int     atrace_marker_fd = -1;
-
 bool debug=false;
 bool trace=false;
 bool flow=false;
@@ -33,6 +30,12 @@ int group_index[group_max+1];
 int cpu = 0;
 int cpu_id[cpu_max]; // 8 core
 char group_name[group_max][counter_max][30] = {0};
+
+
+#if 0
+#define ATRACE_MESSAGE_LEN 256
+int     atrace_marker_fd = -1;
+
 void trace_init()
 {
   if (!trace) return;
@@ -40,14 +43,23 @@ void trace_init()
   if (atrace_marker_fd == -1)   { /* do error handling */ }
 }
 
-inline int trace_counter(const char *name, const int value)
+inline void trace_counter(const char *name, const int value)
 {
-    if (!trace) return 0;
+    if (!trace) return;
     char buf[ATRACE_MESSAGE_LEN];
     int len = snprintf(buf, ATRACE_MESSAGE_LEN, "C|%d|%s|%i", getpid(), name, value);
     int ret = write(atrace_marker_fd, buf, len);
-    return ret;
+    return;
 }
+#else
+#include <android/trace.h>
+
+void trace_init() {}
+void trace_counter(const char *name, const long long value)
+{
+	ATrace_setCounter(name, value);
+}
+#endif
 
 bool child_finish = false;
 
@@ -170,12 +182,7 @@ int perf(int pid=-1) {
         if(debug) {
             printf("finish read sample %d / %d\n",sample_i,sample);
         }
-        int ret = trace_counter("pmu_index", sample_i);
-        if (ret < 0)
-        {
-            sample_i = -1;
-            continue;
-        }
+        trace_counter("pmu_index", sample_i);
         for (int cpu_i = 0 ; cpu_i < cpu ; cpu_i++)
             for (int group_i = 0 ; group_i < group ; group_i++)
             {
@@ -344,7 +351,7 @@ int main(int argc, char* argv[]) {
             case 'u': user = true; break;
             case 'e': group_parsing(optarg); break;
             case 'p': pids = atoi(optarg); break;
-            default: printf("-e exe_file\n-g: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
+            default: printf("-e exe_file\n-d: debug\n-t: trace\n-i interval(ms)\n-s sample\n-c: cpu\n"); return(0);
         }
     }
     if (optind < argc) {

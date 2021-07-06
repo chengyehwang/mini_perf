@@ -220,9 +220,9 @@ for cpu in cpu_list:
     w21 = get_column_letter(column+1) + '22'
     workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
-    workspace[w2] = 10
-    workspace[w3] = 20
-    workspace[w4] = 100
+    workspace[w2] = 10 # 5ns
+    workspace[w3] = 40 # 20ns
+    workspace[w4] = 200 # 100ns
 
     workspace[w1].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
     workspace[w2].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
