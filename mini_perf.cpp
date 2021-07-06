@@ -57,7 +57,9 @@ inline void trace_counter(const char *name, const int value)
 void trace_init() {}
 void trace_counter(const char *name, const long long value)
 {
-	ATrace_setCounter(name, value);
+	if (trace) {
+		ATrace_setCounter(name, value);
+	}
 }
 #endif
 
