@@ -218,6 +218,7 @@ for cpu in cpu_list:
     w4 = get_column_letter(column+1) + '5'
     w5 = get_column_letter(column+1) + '6'
     w21 = get_column_letter(column+1) + '22'
+    w37 = get_column_letter(column+1) + '38'
     workspace[w0] = 'penalty' + cpu
     workspace[w1] = 0
     workspace[w2] = 10 # 5ns
@@ -271,6 +272,16 @@ for cpu in cpu_list:
     chart.series.append(series)
     chart.legend = None
     workspace.add_chart(chart, w21)
+
+    chart = ScatterChart()
+    chart.title = 'MIPS' + cpu
+    chart.x_axis.title = 'Time'
+    xvalues = Reference(workspace, min_col = 1, min_row = 2, max_row = row_num + 1)
+    values = Reference(workspace, min_col = column+3, min_row = 2, max_row = row_num + 1)
+    series = Series(values, xvalues)
+    chart.series.append(series)
+    chart.legend = None
+    workspace.add_chart(chart, w37)
 
     column += 10
 
