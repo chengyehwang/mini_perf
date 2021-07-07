@@ -54,6 +54,9 @@ for counter in data.columns:
             continue
         data[counter_new] = (data[counter] * data['time_enabled'+post_fix] / data['time_running'+post_fix]).round()
 
+if False: # Q 4ms + pmu timeinterleave -> moving average
+    data = data.rolling(window=6).mean()
+
 cpu_list = ['0','1','2','3','4','5','6','7']
 cpu_group = {'L': ['0','1','2','3'], 'B': ['4','5','6','7']}
 
