@@ -144,8 +144,8 @@ int perf(int pid=-1) {
                 ref.size = sizeof(ref);
                 ref.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_TOTAL_TIME_RUNNING | PERF_FORMAT_TOTAL_TIME_ENABLED ;
                 ref.config = group_counter[group_i][count_i]->config;
-                ref.sample_freq = 1;
-                ref.freq = 1;
+                ref.sample_period = 0;
+                ref.freq = 0;
                 int fd_ref = syscall(__NR_perf_event_open, &ref, pid, cpu_id[cpu_i], fd_prev, 0);
                 fd[cpu_i][group_i][count_i] = fd_ref;
                 fd_prev = fd[cpu_i][group_i][0];
@@ -172,7 +172,7 @@ int perf(int pid=-1) {
     gettimeofday(&tp, NULL);
     unsigned long long us_start = tp.tv_sec * 1000000 + tp.tv_usec;
     unsigned data_total = sample * (1 + cpu * group_index[group]);
-    unsigned long long data[data_total];
+    unsigned long long *data = (unsigned long long *)malloc(data_total*sizeof(unsigned long long));
     memset(data, 0, sizeof(unsigned long long) * data_total);
     for (int sample_i = 0 ; sample_i < sample ; sample_i++)
     {
@@ -286,6 +286,10 @@ void group_parsing(char *string) {
 }
 
 int main(int argc, char* argv[]) {
+    if(geteuid() == 0) {
+        system("sysctl -w kernel/perf_cpu_time_max_percent=0");
+        system("sysctl -w kernel/perf_event_max_sample_rate=1000000");
+    }
     int opt;
     int cpu_select = -1;
     bool cpu_all = false;
