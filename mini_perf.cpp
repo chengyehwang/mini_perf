@@ -170,7 +170,8 @@ int perf(int pid=-1) {
     }
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    unsigned long long us_start = tp.tv_sec * 1000000 + tp.tv_usec;
+    long long us_start = tp.tv_sec * 1000000 + tp.tv_usec;
+    long long us_now = us_start;
     unsigned data_total = sample * (1 + cpu * group_index[group]);
     unsigned long long *data = (unsigned long long *)malloc(data_total*sizeof(unsigned long long));
     memset(data, 0, sizeof(unsigned long long) * data_total);
@@ -180,7 +181,10 @@ int perf(int pid=-1) {
             sample = sample_i;
             break;
         }
-        usleep(interval * 1000);
+        long long us_wait = sample_i * interval * 1000 - us_now;
+        if (us_wait > 0) {
+            usleep(us_wait);
+        }
         if(debug) {
             printf("finish read sample %d / %d\n",sample_i,sample);
         }
@@ -201,10 +205,10 @@ int perf(int pid=-1) {
             }
         struct timeval tp;
         gettimeofday(&tp, NULL);
-        unsigned long long us = tp.tv_sec * 1000000 + tp.tv_usec - us_start;
-        data[data_time(sample_i)] = us;
+        us_now = tp.tv_sec * 1000000 + tp.tv_usec - us_start;
+        data[data_time(sample_i)] = us_now * 1000; // save ns
         if (print) {
-            printf("time %lld us\n",us);
+            printf("time %lld us\n", us_now);
         }
     }
 

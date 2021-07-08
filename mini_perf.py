@@ -36,8 +36,8 @@ counter = read_file()
 #print(counter)
 data = pd.DataFrame(counter,columns=name)
 
-data['time'] = data['time'] / 1000000.0
 data['delta'] = data['time']
+data['time'] = data['time'] / 1000000000.0
 data = data.set_index('time')
 
 data = data.diff().dropna()
@@ -52,7 +52,7 @@ for counter in data.columns:
         post_fix = m.group(2) + m.group(3)
         if counter_new in data.columns:
             continue
-        data[counter_new] = (data[counter] * data['time_enabled'+post_fix] / data['time_running'+post_fix]).round()
+        data[counter_new] = (data[counter] * data['delta'] / data['time_running'+post_fix]).round()
 
 if False: # Q 4ms + pmu timeinterleave -> moving average
     data = data.rolling(window=6).mean()
@@ -103,7 +103,7 @@ for cpu in cpu_list:
         count_d_req = 'l1d-cache-req' + cpu
 
         if count_inst in data.columns:
-            data[count_mips] = data[count_inst] / data['delta'] / 1000000
+            data[count_mips] = (data[count_inst] / 1000000) / (data['delta'] / 1000000000)
 
         if count_inst in data.columns and count_i in data.columns:
             data[count_i_req] = data[count_i] / data[count_inst]
