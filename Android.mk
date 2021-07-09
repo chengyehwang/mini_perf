@@ -36,6 +36,7 @@ include $(BUILD_EXECUTABLE)
 
 test_name = ion_mem
 include $(CLEAR_VARS)
+LOCAL_CFLAGS := -DION_TEST
 LOCAL_MODULE := ion_mem.out
 LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := ion_mem.c ion.c android-ndk-r21e/platforms/android-30/arch-arm64/usr/lib/liblog.so
