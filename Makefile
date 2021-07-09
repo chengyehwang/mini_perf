@@ -21,8 +21,12 @@ build:
 	./android-ndk-r21e/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
+	cp obj/local/arm64-v8a/pagemap.out ./pagemap.exe
+	cp obj/local/arm64-v8a/fake_loading.out ./fake_loading.exe
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp
+	adb push pagemap.exe /data/local/tmp
+	adb push fake_loading.exe /data/local/tmp
 local:
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.head'
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.data'
@@ -66,8 +70,14 @@ busybox:
 	wget https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-armv8l
 	chmod 755 busybox-armv8l
 	adb push busybox-armv8l /data/local/tmp
+pagemap:
+	git clone https://github.com/dwks/pagemap.git
+
 lmbench:
 	wget https://sourceforge.net/projects/lmbench/files/OldFiles/lmbench-3.0-a3.tgz
 	tar zxvf lmbench-3.0-a3.tgz
+lmbench_new:
+	wget https://sourceforge.net/projects/lmbench/files/development/lmbench-3.0-a9/lmbench-3.0-a9.tgz
+	tar zxvf lmbench-3.0-a9.tgz
 dasm:
 	android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-objdump -D lat_mem_rd.exe > lat_mem_rd.dasm
