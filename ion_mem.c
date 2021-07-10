@@ -6,7 +6,7 @@
 unsigned char *ion_mem(int len) {
     int prot = PROT_READ | PROT_WRITE;
     int map_flags = MAP_SHARED;
-    int alloc_flags = 0;
+    int alloc_flags = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
     int heap_mask = ION_HEAP_SYSTEM_CONTIG_MASK; // continuous mem
 
     int align = 0;
@@ -20,6 +20,14 @@ unsigned char *ion_mem(int len) {
     if (ret) { // try another mem
 	  heap_mask = ION_HEAP_SYSTEM_MASK; // not continuous mem
 	  ret = ion_alloc(fd, len, align, heap_mask, alloc_flags, &handle);
+	  if (ret) {
+	  	printf("can not use ion mem\n");
+		return 0;
+	  } else {
+	  	printf("use non-continous ion mem\n");
+	  }
+    } else {
+	  printf("use continous ion mem\n");
     }
 
     ret = ion_map(fd, handle, len, prot, map_flags, 0, &ptr, &map_fd);

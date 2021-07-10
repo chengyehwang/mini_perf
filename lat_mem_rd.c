@@ -27,6 +27,8 @@ int scale = 1;
 
 int infinit = 0;
 
+int use_ion_mem = 0;
+
 void proc_exit(int s) {
     fflush(stdout);
     exit(0);
@@ -44,17 +46,20 @@ main(int ac, char **av)
 	size_t	len;
 	size_t	range;
 	size_t	stride;
-	char   *usage = "[-P <page>] [-R <range>] [-I] [-N <repetitions>] len [stride...]\n";
+	char   *usage = "[-P <page>] [-R <range>] [-M] [-I] [-N <repetitions>] len [stride...]\n";
 
-	while (( c = getopt(ac, av, "P:IR:W:N:")) != EOF) {
-		switch(c) {
-		case 'P':
+	while (( c = getopt(ac, av, "P:MIR:W:N:")) != EOF) {
+	    switch(c) {
+		  case 'P':
 			page = atoi(optarg);
 			break;
-        case 'I':
-            infinit = 1;
-            break;
-		case 'R':
+		  case 'M':
+			use_ion_mem = 1;
+			break;
+		  case 'I':
+			infinit = 1;
+			break;
+		  case 'R':
 			fix_range = atoi(optarg);
 			if (fix_range >= 1<<21) {
 				scale = 100;

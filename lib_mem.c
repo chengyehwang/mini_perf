@@ -13,8 +13,20 @@
  */
 #include "bench.h"
 #ifndef HOST
+unsigned char * ion_mem(int size);
+extern use_ion_mem;
 void *valloc(int size) {
-    return memalign(4096, size);
+    void *ret;
+    if (use_ion_mem) {
+	  ret = ion_mem(size);
+	  if (ret != 0) {
+		printf("allocate ion memory addr 0x%llx size 0x%x\n",ret,size);
+		return ret;
+	  }
+    }
+    ret = memalign(4096, size);
+    printf("allocate memalign memory addr 0x%llx size 0x%x\n",ret,size);
+    return ret;
 }
 #endif
 
