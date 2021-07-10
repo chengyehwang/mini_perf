@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <ion/ion.h>
+#include <ion.h>
 #include <linux/ion_4.19.h>
 
 #include <android/log.h>

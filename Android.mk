@@ -16,8 +16,8 @@ $(foreach test_case, $(test_cases), $(eval $(call func)))
 test_name = lat_mem_rd
 include $(CLEAR_VARS)
 LOCAL_MODULE := lat_mem_rd.out
-LOCAL_SRC_FILES := lib_mem.c lib_timing.c lat_mem_rd.c
-LOCAL_LDLIBS = -landroid
+LOCAL_SRC_FILES := lib_mem.c lib_timing.c lat_mem_rd.c ion_mem.c ion.c
+LOCAL_LDLIBS += -landroid -llog -L android-ndk-r21e/platforms/android-30/arch-arm64/usr/lib/
 include $(BUILD_EXECUTABLE)
 
 test_name = pagemap
@@ -38,8 +38,7 @@ test_name = ion_mem
 include $(CLEAR_VARS)
 LOCAL_CFLAGS := -DION_TEST
 LOCAL_MODULE := ion_mem.out
-LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := ion_mem.c ion.c android-ndk-r21e/platforms/android-30/arch-arm64/usr/lib/liblog.so
-LOCAL_LDLIBS += -landroid -llog
+LOCAL_SRC_FILES := ion_mem.c ion.c
+LOCAL_LDLIBS += -landroid -llog -L android-ndk-r21e/platforms/android-30/arch-arm64/usr/lib/
 include $(BUILD_EXECUTABLE)
 

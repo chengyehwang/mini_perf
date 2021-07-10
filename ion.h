@@ -21,22 +21,35 @@
 #ifndef __SYS_CORE_ION_H
 #define __SYS_CORE_ION_H
 
+#include <sys/types.h>
 #include <linux/ion.h>
 
 __BEGIN_DECLS
 
+struct ion_handle;
+
 int ion_open();
 int ion_close(int fd);
 int ion_alloc(int fd, size_t len, size_t align, unsigned int heap_mask,
-	      unsigned int flags, struct ion_handle **handle);
+              unsigned int flags, ion_user_handle_t *handle);
 int ion_alloc_fd(int fd, size_t len, size_t align, unsigned int heap_mask,
-		 unsigned int flags, int *handle_fd);
+              unsigned int flags, int *handle_fd);
 int ion_sync_fd(int fd, int handle_fd);
-int ion_free(int fd, struct ion_handle *handle);
-int ion_map(int fd, struct ion_handle *handle, size_t length, int prot,
+int ion_free(int fd, ion_user_handle_t handle);
+int ion_map(int fd, ion_user_handle_t handle, size_t length, int prot,
             int flags, off_t offset, unsigned char **ptr, int *map_fd);
-int ion_share(int fd, struct ion_handle *handle, int *share_fd);
-int ion_import(int fd, int share_fd, struct ion_handle **handle);
+int ion_share(int fd, ion_user_handle_t handle, int *share_fd);
+int ion_import(int fd, int share_fd, ion_user_handle_t *handle);
+
+/**
+  * Add 4.12+ kernel ION interfaces here for forward compatibility
+  * This should be needed till the pre-4.12+ ION interfaces are backported.
+  */
+int ion_query_heap_cnt(int fd, int* cnt);
+int ion_query_get_heaps(int fd, int cnt, void* buffers);
+
+int ion_is_legacy(int fd);
+int ion_is_using_modular_heaps(int fd);
 
 __END_DECLS
 

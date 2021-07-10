@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<sys/mman.h>
-#include<ion/ion.h>
+#include<ion.h>
 #include<linux/ion.h>
 unsigned char *ion_mem(int len) {
     int prot = PROT_READ | PROT_WRITE;
@@ -21,9 +21,11 @@ unsigned char *ion_mem(int len) {
     ret = ion_map(fd, handle, len, prot, map_flags, 0, &ptr, &map_fd);
     return ptr;
 }
+#ifdef ION_TEST
 int main()
 {
     unsigned char * p = ion_mem(1024*1024);
     p[0] = 'a';
     printf("hello all %d\n",p[0]);
 }
+#endif
