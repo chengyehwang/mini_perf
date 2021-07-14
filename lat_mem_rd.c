@@ -21,6 +21,8 @@ size_t	step(size_t k);
 
 int	page = 8;
 
+int full_rand = 0;
+
 int fix_range = 0;
 
 int scale = 1;
@@ -46,9 +48,9 @@ main(int ac, char **av)
 	size_t	len;
 	size_t	range;
 	size_t	stride;
-	char   *usage = "[-P <page>] [-R <range>] [-M] [-I] [-N <repetitions>] len [stride...]\n";
+	char   *usage = "[-P <page>] [-R <range>] [-M] [-I] [-i] [-N <repetitions>] len [stride...]\n";
 
-	while (( c = getopt(ac, av, "P:MIR:W:N:")) != EOF) {
+	while (( c = getopt(ac, av, "P:MIiR:W:N:")) != EOF) {
 	    switch(c) {
 		  case 'P':
 			page = atoi(optarg);
@@ -58,6 +60,9 @@ main(int ac, char **av)
 			break;
 		  case 'I':
 			infinit = 1;
+			break;
+		  case 'i':
+		  	full_rand = 1;
 			break;
 		  case 'R':
 			fix_range = atoi(optarg);

@@ -199,7 +199,7 @@ int perf(int pid=-1) {
                 if (print) {
 			printf("time_enabled time_running %llu %llu #\n",data[data_group(sample_i,cpu_i,group_i)+1],data[data_group(sample_i,cpu_i,group_i)+2]);
                     for(int m = 0 ; m < group_num[group_i] ; m++) {
-                        printf(" %10lld %20s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+3+m], group_name[group_i][m],group_i,cpu_i);
+                        printf(" %10lld %25s_g%d_cpu%d #\n",data[data_group(sample_i,cpu_i,group_i)+3+m], group_name[group_i][m],group_i,cpu_i);
                     }
                 }
             }
@@ -317,9 +317,9 @@ int main(int argc, char* argv[]) {
                     group_parsing(x1);
                     char x2[] = "raw-l1i-cache,raw-l1i-cache-refill";
                     group_parsing(x2);
-                    char x3[] = "raw-l1d-cache,raw-l1d-cache-refill";
+                    char x3[] = "raw-l1d-cache,raw-l1d-cache-refill,raw-l1d-cache-prefetch";
                     group_parsing(x3);
-                    char x4[] = "raw-l2d-cache,raw-l2d-cache-refill";
+                    char x4[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l2d-cache-prefetch";
                     group_parsing(x4);
                     char x5[] = "raw-l3d-cache,raw-l3d-cache-refill,raw-l2d-tlb-refill";
                     group_parsing(x5);
@@ -328,7 +328,7 @@ int main(int argc, char* argv[]) {
                 else if (strcmp(longopts[option_index].name,"cache6")==0) {
                     char x0[] = "raw-inst-retired,raw-cpu-cycles,raw-l1i-cache,raw-l1d-cache,raw-l1i-cache-refill,raw-l1d-cache-refill";
                     group_parsing(x0);
-                    char x1[] = "raw-l2d-tlb-refill,raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
+                    char x1[] = "raw-l2d-tlb-refill,raw-l2d-cache-prefetch,raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x1);
                     cpu_select = 0xff;
                 }
@@ -339,7 +339,7 @@ int main(int argc, char* argv[]) {
                     group_parsing(x1);
                     char x2[] = "raw-l2d-cache,raw-l2d-cache-refill,raw-l3d-cache,raw-l3d-cache-refill";
                     group_parsing(x2);
-                    char x3[] = "raw-inst-spec,raw-ldst-spec,raw-inst-retired,raw-l2d-tlb-refill";
+                    char x3[] = "raw-inst-retired,raw-l1d-cache-prefetch,raw-l2d-cache-prefetch,raw-l2d-tlb-refill";
                     group_parsing(x3);
                     cpu_select = 0xff;
                 }
