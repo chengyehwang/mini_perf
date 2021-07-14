@@ -104,7 +104,7 @@ for cpu in cpu_list:
 
         count_mips = 'mips' + cpu
 
-	count_time = 'time_running' + group + cpu
+        count_time = 'time_running' + group + cpu
         count_inst = 'raw-inst-retired' + group + cpu
         count_i = 'raw-l1i-cache' + group + cpu
         count_d = 'raw-l1d-cache' + group + cpu
