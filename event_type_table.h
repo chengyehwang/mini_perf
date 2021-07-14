@@ -214,4 +214,5 @@ EVENT_TYPE_TABLE_ENTRY("raw-l3d-cache-refill-wr", PERF_TYPE_RAW, 0xa3, "Attribut
 EVENT_TYPE_TABLE_ENTRY("raw-l3d-cache-wb-victim", PERF_TYPE_RAW, 0xa6, "Attributable Level 3 data or unified cache Write-Back, victim", "arm")
 EVENT_TYPE_TABLE_ENTRY("raw-l3d-cache-wb-clean", PERF_TYPE_RAW, 0xa7, "Attributable Level 3 data or unified cache Write-Back, cache clean", "arm")
 EVENT_TYPE_TABLE_ENTRY("raw-l3d-cache-inval", PERF_TYPE_RAW, 0xa8, "Attributable Level 3 data or unified cache access, invalidate", "arm")
-
+EVENT_TYPE_TABLE_ENTRY("raw-l1d-cache-prefetch", PERF_TYPE_RAW, 0x100, "L1 cache prefetch", "arm")
+EVENT_TYPE_TABLE_ENTRY("raw-l2d-cache-prefetch", PERF_TYPE_RAW, 0x10a, "L1 cache prefetch", "arm")
