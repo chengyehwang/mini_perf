@@ -62,7 +62,7 @@ main(int ac, char **av)
 			infinit = 1;
 			break;
 		  case 'i':
-		  	full_rand = 1;
+			full_rand = 1;
 			break;
 		  case 'R':
 			fix_range = atoi(optarg);

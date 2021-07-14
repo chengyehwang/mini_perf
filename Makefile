@@ -21,12 +21,8 @@ build:
 	./android-ndk-r21e/ndk-build NDK_APPLICATION_MK=./Application.mk
 	cp obj/local/arm64-v8a/mini_perf.out ./mini_perf.exe
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
-	cp obj/local/arm64-v8a/pagemap.out ./pagemap.exe
-	cp obj/local/arm64-v8a/fake_loading.out ./fake_loading.exe
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp
-	adb push pagemap.exe /data/local/tmp
-	adb push fake_loading.exe /data/local/tmp
 local:
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.head'
 	-adb shell su -c 'rm /data/local/tmp/mini_perf.data'
@@ -81,3 +77,5 @@ lmbench_new:
 	tar zxvf lmbench-3.0-a9.tgz
 dasm:
 	android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-objdump -D lat_mem_rd.exe > lat_mem_rd.dasm
+git:
+	git config --global credential.helper cache
