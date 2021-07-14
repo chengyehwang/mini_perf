@@ -7,7 +7,9 @@ unsigned char *ion_mem(int len) {
     int prot = PROT_READ | PROT_WRITE;
     int map_flags = MAP_SHARED;
     int alloc_flags = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
-    int heap_mask = ION_HEAP_SYSTEM_CONTIG_MASK; // continuous mem
+    int heap_mask = 1<<10; // mtk multimedia mem
+    //int heap_mask = ION_HEAP_TYPE_DMA_MASK; // DMA buf continuous mem
+    //int heap_mask = ION_HEAP_SYSTEM_CONTIG_MASK; // continuous mem
 
     int align = 0;
 
