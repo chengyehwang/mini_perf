@@ -84,3 +84,5 @@ ion:
 	wget http://androidxref.com/4.4.2_r1/raw/system/core/libion/ion_test.c
 dmabuf:
 	git clone https://android.googlesource.com/platform/system/memory/libdmabufheap
+git:
+	git config --global credential.helper cache

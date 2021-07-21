@@ -12,9 +12,10 @@
  * Support for this development by Sun Microsystems is gratefully acknowledged.
  */
 #include "bench.h"
+extern int full_rand;
 #ifndef HOST
 unsigned char * ion_mem(int size);
-extern use_ion_mem;
+extern int use_ion_mem;
 void *valloc(int size) {
     void *ret;
     if (use_ion_mem) {
@@ -258,8 +259,11 @@ line_initialize(void* cookie)
 	srand(getpid());
 
 	lines = words_initialize(nlines, state->line);
-	//pages = permutation(npages, state->pagesize);
-	pages = bit_reverse(npages, state->pagesize);
+	if (full_rand) {
+		pages = permutation(npages, state->pagesize);
+	} else {
+		pages = bit_reverse(npages, state->pagesize);
+	}
 	p     = state->addr = (char*)valloc(state->len + state->pagesize);
 
 	state->nwords = 0;

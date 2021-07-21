@@ -20,19 +20,6 @@ LOCAL_SRC_FILES := lib_mem.c lib_timing.c lat_mem_rd.c ion_mem.c ion.c
 LOCAL_LDLIBS += -landroid -llog -L android-ndk-r21e/platforms/android-30/arch-arm64/usr/lib/
 include $(BUILD_EXECUTABLE)
 
-test_name = pagemap
-include $(CLEAR_VARS)
-LOCAL_MODULE := pagemap.out
-LOCAL_SRC_FILES := pagemap.c
-LOCAL_LDLIBS = -landroid
-include $(BUILD_EXECUTABLE)
-
-test_name = fake_loading
-include $(CLEAR_VARS)
-LOCAL_MODULE := fake_loading.out
-LOCAL_SRC_FILES := fake_loading.c
-LOCAL_LDLIBS = -landroid
-include $(BUILD_EXECUTABLE)
 
 test_name = ion_mem
 include $(CLEAR_VARS)

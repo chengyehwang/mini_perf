@@ -6,6 +6,12 @@ import re
 import glob
 import simplejson as json
 import argparse
+
+l1_penalty = 0
+l2_penalty = 10 # 5ns
+l3_penalty = 40 # 20ns
+dram_penalty = 200 # 100ns
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--last", action="store_true", help="handle last data")
 args = parser.parse_args()
@@ -54,6 +60,8 @@ for counter in data.columns:
             continue
         data[counter_new] = (data[counter] * data['delta'] / data['time_running'+post_fix]).round()
 
+data = data.fillna(0)
+
 if False: # Q 4ms + pmu timeinterleave -> moving average
     data = data.rolling(window=6).mean()
 
@@ -96,6 +104,7 @@ for cpu in cpu_list:
 
         count_mips = 'mips' + cpu
 
+        count_time = 'time_running' + group + cpu
         count_inst = 'raw-inst-retired' + group + cpu
         count_i = 'raw-l1i-cache' + group + cpu
         count_d = 'raw-l1d-cache' + group + cpu
@@ -103,7 +112,7 @@ for cpu in cpu_list:
         count_d_req = 'l1d-cache-req' + cpu
 
         if count_inst in data.columns:
-            data[count_mips] = (data[count_inst] / 1000000) / (data['delta'] / 1000000000)
+            data[count_mips] = (data[count_inst] / 1000000) / (data[count_time] / 1000000000)
 
         if count_inst in data.columns and count_i in data.columns:
             data[count_i_req] = data[count_i] / data[count_inst]
@@ -144,7 +153,7 @@ for cpu in cpu_list:
 
     if l1_hit in data.columns and l2_hit in data.columns and l3_hit in data.columns and dram_hit in data.columns:
         impact = 'cache_impact' + cpu
-        data[impact] = data[l1_hit] * 0 + data[l2_hit] * 10 + data[l3_hit] * 20 + data[dram_hit] * 100;
+        data[impact] = data[l1_hit] * l1_penalty + data[l2_hit] * l2_penalty + data[l3_hit] * l3_penalty + data[dram_hit] * dram_penalty;
 
 columns = list(data.columns)
 def compare(item):
@@ -224,10 +233,10 @@ for cpu in cpu_list:
     w21 = get_column_letter(column+1) + '22'
     w37 = get_column_letter(column+1) + '38'
     workspace[w0] = 'penalty' + cpu
-    workspace[w1] = 0
-    workspace[w2] = 10 # 5ns
-    workspace[w3] = 40 # 20ns
-    workspace[w4] = 200 # 100ns
+    workspace[w1] = l1_penalty 
+    workspace[w2] = l2_penalty # 5ns
+    workspace[w3] = l3_penalty # 20ns
+    workspace[w4] = dram_penalty # 100ns
 
     workspace[w1].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
     workspace[w2].fill = PatternFill(start_color="FFEE08", end_color="FFEE08", fill_type = "solid")
