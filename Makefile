@@ -34,7 +34,7 @@ local:
 	adb push lat_mem_rd.exe /data/local/tmp
 	adb push test.sh /data/local/tmp
 	adb shell chmod 755 /data/local/tmp/test.sh
-	adb shell /data/local/tmp/test.sh
+	adb shell su -c /data/local/tmp/test.sh
 	adb pull /data/local/tmp/mini_perf.head
 	adb pull /data/local/tmp/mini_perf.data
 	adb pull /data/local/tmp/mini_perf.last_data
