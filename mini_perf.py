@@ -171,6 +171,7 @@ from openpyxl.chart import ScatterChart, Reference, Series
 from openpyxl.styles import PatternFill
 
 workbook = load_workbook(file_excel)
+workbook['pmu'].freeze_panes = "B2"
 workspace = workbook.create_sheet(title = 'impact')
 
 if True: # time
@@ -289,6 +290,7 @@ for cpu in cpu_list:
     column += 10
 
     
+workspace.freeze_panes = "B2"
 
 workbook.save(file_excel)
 

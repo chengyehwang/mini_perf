@@ -23,21 +23,18 @@ build:
 	cp obj/local/arm64-v8a/lat_mem_rd.out ./lat_mem_rd.exe
 	cp obj/local/arm64-v8a/pagemap.out ./pagemap.exe
 	cp obj/local/arm64-v8a/fake_loading.out ./fake_loading.exe
-	adb push mini_perf.exe /data/local/tmp
-	adb push lat_mem_rd.exe /data/local/tmp
-	adb push pagemap.exe /data/local/tmp
-	adb push fake_loading.exe /data/local/tmp
+	cp obj/local/arm64-v8a/ion_mem.out ./ion_mem.exe
 local:
-	-adb shell su -c 'rm /data/local/tmp/mini_perf.head'
-	-adb shell su -c 'rm /data/local/tmp/mini_perf.data'
-	-adb shell su -c 'rm /data/local/tmp/mini_perf.last_data'
-	-adb shell su -c 'rm /data/local/tmp/lat_mem_rd.log'
-	-adb shell su -c 'rm /data/local/tmp/lat_mem_rd.err'
+	-adb shell rm /data/local/tmp/mini_perf.head
+	-adb shell rm /data/local/tmp/mini_perf.data
+	-adb shell rm /data/local/tmp/mini_perf.last_data
+	-adb shell rm /data/local/tmp/lat_mem_rd.log
+	-adb shell rm /data/local/tmp/lat_mem_rd.err
 	adb push mini_perf.exe /data/local/tmp
 	adb push lat_mem_rd.exe /data/local/tmp
 	adb push test.sh /data/local/tmp
 	adb shell chmod 755 /data/local/tmp/test.sh
-	adb shell su -c '/data/local/tmp/test.sh'
+	adb shell /data/local/tmp/test.sh
 	adb pull /data/local/tmp/mini_perf.head
 	adb pull /data/local/tmp/mini_perf.data
 	adb pull /data/local/tmp/mini_perf.last_data
@@ -81,3 +78,9 @@ lmbench_new:
 	tar zxvf lmbench-3.0-a9.tgz
 dasm:
 	android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-objdump -D lat_mem_rd.exe > lat_mem_rd.dasm
+ion:
+	wget http://androidxref.com/4.4.2_r1/raw/system/core/libion/ion.c
+	wget http://androidxref.com/4.4.2_r1/raw/system/core/include/ion/ion.h
+	wget http://androidxref.com/4.4.2_r1/raw/system/core/libion/ion_test.c
+dmabuf:
+	git clone https://android.googlesource.com/platform/system/memory/libdmabufheap
